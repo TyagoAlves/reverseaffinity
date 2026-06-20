@@ -87,7 +87,9 @@ class AppCard(QFrame):
         layout.addWidget(self.open_btn, alignment=Qt.AlignCenter)
 
     def mousePressEvent(self, event):
-        self.open_app(self.app_info)
+        parent_win = self.window()
+        if hasattr(parent_win, 'open_app'):
+            parent_win.open_app(self.app_info)
 
 
 class HomeWindow(QMainWindow):
