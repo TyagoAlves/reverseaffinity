@@ -99,7 +99,11 @@ class ScriptConsole(QDockWidget):
         self.input.clear()
         self.output.appendPlainText(">>> " + code)
         self._refresh_context()
-        self._locals["np"] = __import__("numpy")
+        try:
+            self._locals["np"] = __import__("numpy")
+        except ImportError:
+            self._locals["np"] = None
+            self.output.appendPlainText("  (numpy not available, install with: pip install numpy)")
         from PyQt5.QtGui import QColor, QImage
         self._locals["QColor"] = QColor
         self._locals["QImage"] = QImage
