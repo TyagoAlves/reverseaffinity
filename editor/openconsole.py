@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 
 class ScriptConsole(QDockWidget):
     def __init__(self, canvas_getter, parent=None):
-        super().__init__("OpenCode Console", parent)
+        super().__init__("Python Console", parent)
         self.get_canvas = canvas_getter
         self._locals = {"canvas": None, "layers": None, "tools": None}
 
@@ -74,7 +74,7 @@ class ScriptConsole(QDockWidget):
 
     def _print_banner(self):
         banner = (
-            "OpenCode Scripting Console for reverseaffinity\n"
+            "Python Scripting Console for reverseaffinity\n"
             "Type Python code and press Ctrl+Enter to execute.\n"
             "Available context: canvas, layers, tools, np (numpy), QColor, Qt, QImage\n"
             "Type help() for more info.\n"
@@ -154,7 +154,7 @@ def install_console(main_window, canvas_getter):
     main_window.addDockWidget(Qt.BottomDockWidgetArea, dock)
 
     action = dock.toggleViewAction()
-    action.setText("OpenCode Console")
+    action.setText("Python Console")
     action.setShortcut(QKeySequence("Ctrl+`"))
     main_window.console_action = action
 

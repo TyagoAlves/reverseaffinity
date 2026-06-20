@@ -584,8 +584,11 @@ class ExportDialog(QDialog):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        screen = QApplication.primaryScreen().availableSize()
-        self.resize(int(screen.width() * 0.75), int(screen.height() * 0.8))
+        screen = QApplication.primaryScreen().availableGeometry()
+        max_w = min(int(screen.width() * 0.75), screen.width())
+        max_h = min(int(screen.height() * 0.8), screen.height())
+        self.resize(min(max_w, 1400), min(max_h, 900))
+        self.setMaximumSize(screen.width(), screen.height())
 
         self.canvas = CanvasView(self)
 

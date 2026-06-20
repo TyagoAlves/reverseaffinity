@@ -23,7 +23,7 @@ class TestCanvasComposite(unittest.TestCase):
         self.assertEqual(result.height(), 600)
 
     def test_composite_after_clear(self):
-        self.canvas.layer_stack.layers.clear()
+        self.canvas.layer_stack.clear()
         result = self.canvas.layer_stack.composite()
         self.assertTrue(result.isNull())
 

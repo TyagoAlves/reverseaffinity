@@ -381,6 +381,7 @@ class CanvasView(QGraphicsView):
         p.setPen(pen)
         p.drawPoint(pos)
         p.end()
+        self.layer_stack.invalidate_cache()
         self._refresh()
 
     def draw_line(self, p1, p2):
@@ -397,6 +398,7 @@ class CanvasView(QGraphicsView):
         p.setPen(pen)
         p.drawLine(p1, p2)
         p.end()
+        self.layer_stack.invalidate_cache()
         self._refresh()
 
     def erase_point(self, pos):
@@ -412,6 +414,7 @@ class CanvasView(QGraphicsView):
         p.setPen(pen)
         p.drawPoint(pos)
         p.end()
+        self.layer_stack.invalidate_cache()
         self._refresh()
 
     def erase_line(self, p1, p2):
@@ -427,6 +430,7 @@ class CanvasView(QGraphicsView):
         p.setPen(pen)
         p.drawLine(p1, p2)
         p.end()
+        self.layer_stack.invalidate_cache()
         self._refresh()
 
     def _apply_pixel_op(self, pos, op_func, strength=1.0):
@@ -452,6 +456,7 @@ class CanvasView(QGraphicsView):
             self._apply_selection_clip(p)
         p.drawImage(x0, y0, new_img)
         p.end()
+        self.layer_stack.invalidate_cache()
         self._refresh()
 
     def _dodge_func(self, arr, exposure):

@@ -293,6 +293,11 @@ class LayerStack:
             self.active_index -= removed_before
         self.invalidate_cache()
 
+    def clear(self):
+        self.layers.clear()
+        self.active_index = 0
+        self.invalidate_cache()
+
     def move_layer(self, from_idx, to_idx):
         if not (0 <= from_idx < len(self.layers) and 0 <= to_idx < len(self.layers)):
             return
