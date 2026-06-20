@@ -484,21 +484,109 @@ class CropTool(Tool):
     shortcut = "C"
     cursor_shape = Qt.CrossCursor
 
+    def _get_handles(self, canvas):
+        rect = QRectF(canvas.crop_start, canvas.crop_end).normalized()
+        hs = 6.0 / (canvas.zoom_level or 1.0)
+        return {
+            'top_left': (rect.topLeft(), hs),
+            'top_right': (rect.topRight(), hs),
+            'bottom_left': (rect.bottomLeft(), hs),
+            'bottom_right': (rect.bottomRight(), hs),
+            'top_mid': (QPointF(rect.center().x(), rect.top()), hs),
+            'bottom_mid': (QPointF(rect.center().x(), rect.bottom()), hs),
+            'left_mid': (QPointF(rect.left(), rect.center().y()), hs),
+            'right_mid': (QPointF(rect.right(), rect.center().y()), hs),
+        }
+
+    def _hit_handle(self, canvas, pos):
+        rect = QRectF(canvas.crop_start, canvas.crop_end).normalized()
+        hs = 8.0 / (canvas.zoom_level or 1.0)
+        for name, (pt, _) in self._get_handles(canvas).items():
+            if abs(pos.x() - pt.x()) <= hs and abs(pos.y() - pt.y()) <= hs:
+                return name
+        return None
+
+    def _handle_cursor(self, handle):
+        if not handle:
+            return Qt.CrossCursor
+        if 'top' in handle and 'left' in handle:
+            return Qt.SizeFDiagCursor
+        if 'bottom' in handle and 'right' in handle:
+            return Qt.SizeFDiagCursor
+        if 'top' in handle and 'right' in handle:
+            return Qt.SizeBDiagCursor
+        if 'bottom' in handle and 'left' in handle:
+            return Qt.SizeBDiagCursor
+        if 'top' in handle or 'bottom' in handle:
+            return Qt.SizeVerCursor
+        if 'left' in handle or 'right' in handle:
+            return Qt.SizeHorCursor
+        return Qt.CrossCursor
+
+    def _resize_rect(self, rect, handle, pos):
+        r = QRectF(rect)
+        if 'top' in handle:
+            if 'left' in handle:
+                r.setTopLeft(pos)
+            elif 'right' in handle:
+                r.setTopRight(pos)
+            else:
+                r.setTop(pos.y())
+        elif 'bottom' in handle:
+            if 'left' in handle:
+                r.setBottomLeft(pos)
+            elif 'right' in handle:
+                r.setBottomRight(pos)
+            else:
+                r.setBottom(pos.y())
+        elif 'left' in handle:
+            r.setLeft(pos.x())
+        elif 'right' in handle:
+            r.setRight(pos.x())
+        return r
+
     def press(self, canvas, pos, mods):
-        canvas.crop_start = pos
-        canvas.crop_end = pos
-        canvas.crop_active = True
-        canvas.update()
+        handle = self._hit_handle(canvas, pos) if canvas.crop_active else None
+        if handle:
+            canvas.crop_drag_handle = handle
+        else:
+            canvas.crop_start = pos
+            canvas.crop_end = pos
+            canvas.crop_active = True
+            canvas.crop_drag_handle = None
+            canvas.crop_drag_offset = None
 
     def move(self, canvas, last, pos, mods):
-        if canvas.crop_active:
+        if not canvas.crop_active:
+            return
+        handle = canvas.crop_drag_handle
+        if handle:
+            rect = QRectF(canvas.crop_start, canvas.crop_end).normalized()
+            new_rect = self._resize_rect(rect, handle, pos).normalized()
+            canvas.crop_start = new_rect.topLeft()
+            canvas.crop_end = new_rect.bottomRight()
+        else:
+            handle_hover = self._hit_handle(canvas, pos)
+            if handle_hover:
+                canvas.setCursor(self._handle_cursor(handle_hover))
+            else:
+                canvas.setCursor(Qt.CrossCursor)
             canvas.crop_end = pos
-            canvas.update()
+        canvas.update()
 
     def release(self, canvas, pos, mods):
-        if canvas.crop_active:
+        if not canvas.crop_active:
+            return
+        handle = canvas.crop_drag_handle
+        if handle:
+            rect = QRectF(canvas.crop_start, canvas.crop_end).normalized()
+            new_rect = self._resize_rect(rect, handle, pos).normalized()
+            canvas.crop_start = new_rect.topLeft()
+            canvas.crop_end = new_rect.bottomRight()
+        else:
             canvas.crop_end = pos
-            canvas.update()
+        canvas.crop_drag_handle = None
+        canvas.update()
 
     def apply(self, canvas):
         if not canvas.crop_active:
@@ -515,12 +603,14 @@ class CropTool(Tool):
         canvas.crop_active = False
         canvas.crop_start = None
         canvas.crop_end = None
+        canvas.crop_drag_handle = None
         canvas._refresh()
 
     def cancel(self, canvas):
         canvas.crop_active = False
         canvas.crop_start = None
         canvas.crop_end = None
+        canvas.crop_drag_handle = None
         canvas.update()
 
 

@@ -83,6 +83,7 @@ class CanvasView(QGraphicsView):
         self.crop_active = False
         self.crop_start = None
         self.crop_end = None
+        self.crop_drag_handle = None
 
         self.show_grid = False
         self.show_rulers = True
