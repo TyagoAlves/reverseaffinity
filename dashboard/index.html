@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>reverseaffinity — SRE Dashboard (Matriz 30 Agentes)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
+:root{--bg:#0b0e14;--surface:#13181f;--surface2:#1e2230;--surface3:#2a3040;--text:#e0e0e0;--text2:#888;--blue:#7aa2f7;--cyan:#48b0d5;--green:#9ece6a;--yellow:#e6c384;--red:#f7768e;--orange:#f97316;--border:#1e2230;--card-shadow:0 2px 8px rgba(0,0,0,.3)}
+.theme-light{--bg:#f5f5f5;--surface:#fff;--surface2:#e8e8e8;--surface3:#ddd;--text:#222;--text2:#666;--border:#ccc;--card-shadow:0 2px 8px rgba(0,0,0,.1)}
+body{background:var(--bg);color:var(--text);padding:20px;min-height:100vh;transition:background .3s,color .3s}
+h1{font-size:1.4rem;margin-bottom:2px;color:var(--orange)}
+.sub{color:var(--text2);font-size:.85rem;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.sub a{color:var(--cyan);text-decoration:none}
+.sub a:hover{text-decoration:underline}
+.theme-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.75rem;transition:background .2s}
+.theme-btn:hover{background:var(--surface3)}
+
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.metric-card{background:var(--surface);border-radius:10px;padding:14px 16px;border:1px solid var(--border);box-shadow:var(--card-shadow);text-align:center}
+.metric-card .value{font-size:1.8rem;font-weight:700;line-height:1.2}
+.metric-card .label{font-size:.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.metric-card.orange .value{color:var(--orange)}
+.metric-card.green .value{color:var(--green)}
+.metric-card.yellow .value{color:var(--yellow)}
+.metric-card.cyan .value{color:var(--cyan)}
+.metric-card.red .value{color:var(--red)}
+.metric-card.blue .value{color:var(--blue)}
+
+.grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border-radius:10px;padding:16px;border:1px solid var(--border);box-shadow:var(--card-shadow)}
+.card h2{font-size:.9rem;color:var(--blue);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.card .chart-container{position:relative;height:200px}
+
+.progress-bar{background:var(--surface2);border-radius:6px;height:24px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--cyan));border-radius:6px;transition:width .5s;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#fff;font-weight:700}
+.progress-label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--text2);margin-top:4px}
+
+.kanban{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+@media(max-width:900px){.kanban{grid-template-columns:1fr}}
+.kanban-col{background:var(--surface);border-radius:8px;padding:12px;border:1px solid var(--border);min-height:120px}
+.kanban-col h3{font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid}
+.kanban-col.todo h3{color:var(--yellow);border-color:var(--yellow)}
+.kanban-col.progress h3{color:var(--blue);border-color:var(--blue)}
+.kanban-col.done h3{color:var(--green);border-color:var(--green)}
+.kanban-item{background:var(--surface2);border-radius:6px;padding:8px;margin-bottom:6px;font-size:.72rem;border-left:3px solid var(--blue);word-break:break-all;transition:transform .15s}
+.kanban-item:hover{transform:translateX(2px)}
+.kanban-item .agent-tag{display:inline-block;font-size:.6rem;padding:1px 6px;border-radius:3px;margin-top:3px;background:var(--surface3);color:var(--blue);font-weight:700}
+.kanban-item .priority-tag{display:inline-block;font-size:.55rem;padding:1px 5px;border-radius:3px;margin-top:3px;margin-left:3px;font-weight:700}
+.kanban-item .priority-tag.p0{background:#f7768e33;color:var(--red)}
+.kanban-item .priority-tag.p1{background:#e6c38433;color:var(--yellow)}
+.kanban-item .priority-tag.p2{background:#7aa2f733;color:var(--blue)}
+.kanban-item .priority-tag.p3{background:#48b0d533;color:var(--cyan)}
+.kanban-item .tag{display:inline-block;font-size:.6rem;padding:1px 6px;border-radius:3px;margin-top:3px;background:var(--surface3);color:var(--text2)}
+.kanban-item .commit-link{display:block;font-size:.6rem;color:var(--cyan);margin-top:3px;text-decoration:none}
+
+.ec2-list{font-size:.8rem;line-height:1.8}
+.ec2-list div{padding:4px 0}
+.ec2-list span.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.ec2-list .running{background:var(--green);box-shadow:0 0 6px #9ece6a66}
+.ec2-list .stopped{background:var(--yellow)}
+.ec2-list .terminated{background:var(--red)}
+
+.agent-matrix{background:var(--surface);border-radius:10px;padding:16px;border:1px solid var(--border);margin-bottom:16px;box-shadow:var(--card-shadow)}
+.agent-matrix h2{font-size:.9rem;color:var(--orange);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:5px}
+.agent-cell{background:var(--surface2);border-radius:4px;padding:4px 8px;font-size:.65rem;line-height:1.6;transition:transform .15s,box-shadow .15s;position:relative}
+.agent-cell:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.agent-cell .a-num{color:var(--orange);font-weight:700}
+.agent-cell .a-role{color:var(--text2)}
+.agent-cell.active{background:linear-gradient(135deg,#1a2a30,var(--surface));border-left:2px solid var(--green)}
+.agent-cell.idle{background:var(--surface2);border-left:2px solid var(--yellow)}
+.agent-cell.todo{background:var(--surface2);border-left:2px solid var(--red)}
+.agent-cell .task-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%}
+.agent-cell .task-dot.done{background:var(--green)}
+.agent-cell .task-dot.progress{background:var(--blue);animation:pulse2 1.5s infinite}
+.agent-cell .task-dot.todo{background:var(--red)}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.3}}
+
+.sre-feed{background:var(--surface);border-radius:10px;padding:16px;border:1px solid var(--border);box-shadow:var(--card-shadow)}
+.sre-feed h2{font-size:.9rem;color:var(--cyan);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.sre-feed table{width:100%;border-collapse:collapse;font-size:.75rem}
+.sre-feed td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text)}
+.sre-feed td:first-child{color:var(--text2);width:160px;white-space:nowrap}
+.sre-feed tr:last-child td{border-bottom:none}
+.sre-feed .critical{color:var(--red);font-weight:700}
+.sre-feed .critical::before{content:"⬤ ";font-size:.6rem}
+.sre-feed .warning{color:var(--yellow)}
+.sre-feed .warning::before{content:"⬤ ";font-size:.6rem}
+.sre-feed .ok{color:var(--green)}
+.sre-feed .ok::before{content:"⬤ ";font-size:.6rem}
+.sre-feed .info{color:var(--blue)}
+.sre-feed .info::before{content:"⬤ ";font-size:.6rem}
+.last-update{text-align:right;font-size:.7rem;color:#555;margin-top:10px}
+
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:900px){.charts-row{grid-template-columns:1fr}}
+
+.span-link{color:var(--cyan);cursor:pointer;text-decoration:underline;font-size:.7rem}
+</style>
+</head>
+<body>
+<h1>reverseaffinity — SRE Dashboard</h1>
+<div class="sub">
+  <span>Matriz 30 Agentes Especialistas · Sprint 3 · AWS Free Tier · <span class="span-link" onclick="refresh()">⟳ Atualizar agora</span></span>
+  <button class="theme-btn" onclick="toggleTheme()">🌓 Tema</button>
+</div>
+
+<div class="metrics" id="metricsRow">
+  <div class="metric-card orange"><div class="value" id="mTasksDone">0</div><div class="label">Tasks Concluídas</div></div>
+  <div class="metric-card yellow"><div class="value" id="mTasksProgress">0</div><div class="label">Em Progresso</div></div>
+  <div class="metric-card blue"><div class="value" id="mTasksTodo">0</div><div class="label">A Fazer</div></div>
+  <div class="metric-card green"><div class="value" id="mAgentsActive">0</div><div class="label">Agentes Ativos</div></div>
+  <div class="metric-card cyan"><div class="value" id="mInstancesRunning">0</div><div class="label">Instâncias Running</div></div>
+  <div class="metric-card red"><div class="value" id="mInstancesOff">0</div><div class="label">Instâncias Off</div></div>
+  <div class="metric-card blue"><div class="value" id="mSprint">0%</div><div class="label">Sprint</div></div>
+</div>
+
+<div class="charts-row">
+  <div class="card"><h2>Distribuição das Tasks</h2><div class="chart-container"><canvas id="statusChart"></canvas></div></div>
+  <div class="card"><h2>Progresso dos Agentes</h2><div class="chart-container"><canvas id="agentChart"></canvas></div></div>
+</div>
+
+<div class="grid-2">
+<div class="card">
+  <h2>Progresso da Sprint 3 (30 tarefas)</h2>
+  <div class="progress-bar"><div class="progress-fill" id="sprintBar" style="width:0%">0%</div></div>
+  <div class="progress-label"><span id="tasksDone">0</span>/30 tarefas · <span id="tasksPct">0</span>% · <span id="tasksProgress" style="color:var(--blue)">0</span> em progresso · <span style="color:var(--yellow)" id="tasksTodo">0</span> a fazer</div>
+</div>
+<div class="card">
+  <h2>Instâncias EC2</h2>
+  <div class="ec2-list" id="ec2List">Carregando...</div>
+</div>
+</div>
+
+<div class="agent-matrix">
+<h2>Matriz dos 30 Agentes Especialistas</h2>
+<div class="agent-grid" id="agentGrid">Carregando...</div>
+</div>
+
+<div class="kanban">
+<div class="kanban-col todo">
+  <h3>A Fazer</h3>
+  <div id="todoList"><div class="kanban-item">Carregando...</div></div>
+</div>
+<div class="kanban-col progress">
+  <h3>Em Progresso</h3>
+  <div id="progressList"><div class="kanban-item">Carregando...</div></div>
+</div>
+<div class="kanban-col done">
+  <h3>Concluído</h3>
+  <div id="doneList"><div class="kanban-item">Carregando...</div></div>
+</div>
+</div>
+
+<div class="sre-feed">
+<h2>Feed do SRE (Agente_30)</h2>
+<div id="sreFeed">
+<table><tr><td colspan="2">Aguardando dados do Agente_30...</td></tr></table>
+</div>
+<div class="last-update" id="lastUpdate">---</div>
+</div>
+
+<script>
+let statusChartInstance = null;
+let agentChartInstance = null;
+let theme = 'dark';
+
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  document.body.classList.toggle('theme-light', theme === 'light');
+  Chart.defaults.color = theme === 'dark' ? '#e0e0e0' : '#222';
+  Chart.defaults.borderColor = theme === 'dark' ? '#1e2230' : '#ccc';
+  if (statusChartInstance) statusChartInstance.update();
+  if (agentChartInstance) agentChartInstance.update();
+}
+
+function buildCharts(d) {
+  const ctx1 = document.getElementById('statusChart').getContext('2d');
+  if (statusChartInstance) statusChartInstance.destroy();
+  const todo = d.tasks.filter(t => t.status === 'todo').length;
+  const progress = d.tasks.filter(t => t.status === 'progress').length;
+  const done = d.tasks.filter(t => t.status === 'done').length;
+  statusChartInstance = new Chart(ctx1, {
+    type: 'doughnut',
+    data: {
+      labels: ['A Fazer ('+todo+')', 'Em Progresso ('+progress+')', 'Concluído ('+done+')'],
+      datasets: [{
+        data: [todo, progress, done],
+        backgroundColor: ['#e6c384', '#7aa2f7', '#9ece6a'],
+        borderColor: theme === 'dark' ? '#13181f' : '#fff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } } }
+    }
+  });
+
+  const ctx2 = document.getElementById('agentChart').getContext('2d');
+  if (agentChartInstance) agentChartInstance.destroy();
+  const active = d.agents.filter(a => a.state === 'done').length;
+  const prog = d.agents.filter(a => a.state === 'progress').length;
+  const pend = d.agents.filter(a => a.state === 'pending').length;
+  agentChartInstance = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['Status dos Agentes'],
+      datasets: [
+        { label: 'Concluído', data: [active], backgroundColor: '#9ece6a', borderRadius: 4 },
+        { label: 'Em Progresso', data: [prog], backgroundColor: '#7aa2f7', borderRadius: 4 },
+        { label: 'Pendente', data: [pend], backgroundColor: '#e6c384', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, beginAtZero: true, max: 30, grid: { color: theme === 'dark' ? '#1e2230' : '#ddd' } }
+      },
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } } }
+    }
+  });
+}
+
+function updateMetrics(d) {
+  const done = d.tasks.filter(t => t.status === 'done').length;
+  const progress = d.tasks.filter(t => t.status === 'progress').length;
+  const todo = d.tasks.filter(t => t.status === 'todo').length;
+  const activeAgents = d.agents.filter(a => a.status === 'active').length;
+  const running = d.ec2.filter(e => e.state === 'running').length;
+  const off = d.ec2.filter(e => e.state !== 'running').length;
+  const pct = Math.round(done / 30 * 100);
+
+  document.getElementById('mTasksDone').textContent = done;
+  document.getElementById('mTasksProgress').textContent = progress;
+  document.getElementById('mTasksTodo').textContent = todo;
+  document.getElementById('mAgentsActive').textContent = activeAgents;
+  document.getElementById('mInstancesRunning').textContent = running;
+  document.getElementById('mInstancesOff').textContent = off;
+  document.getElementById('mSprint').textContent = pct + '%';
+}
+
+async function refresh() {
+  try {
+    const r = await fetch('/status.json?_=' + Date.now());
+    const d = await r.json();
+
+    const done = d.tasks.filter(t => t.status === 'done').length;
+    const progress = d.tasks.filter(t => t.status === 'progress').length;
+    const todo = d.tasks.filter(t => t.status === 'todo').length;
+    const pct = Math.round(done / 30 * 100);
+    document.getElementById('sprintBar').style.width = pct + '%';
+    document.getElementById('sprintBar').textContent = pct + '%';
+    document.getElementById('tasksDone').textContent = done;
+    document.getElementById('tasksPct').textContent = pct;
+    document.getElementById('tasksProgress').textContent = progress;
+    document.getElementById('tasksTodo').textContent = todo;
+
+    updateMetrics(d);
+
+    // Agent Matrix
+    const ag = document.getElementById('agentGrid');
+    ag.innerHTML = '';
+    d.agents.forEach(a => {
+      const div = document.createElement('div');
+      div.className = 'agent-cell ' + (a.state === 'done' ? 'active' : a.state === 'progress' ? 'idle' : 'todo');
+      const stateDot = '<span class="task-dot ' + a.state + '"></span>';
+      div.innerHTML = '<span class="a-num">Agente_' + String(a.n).padStart(2,'0') + '</span> <span class="a-role">' + a.role + '</span>' + stateDot + '<br><span style="color:var(--text2)">' + (a.task || '').substr(0, 45) + '</span>';
+      ag.appendChild(div);
+    });
+
+    // Kanban
+    const todoEl = document.getElementById('todoList');
+    const progEl = document.getElementById('progressList');
+    const doneEl = document.getElementById('doneList');
+    todoEl.innerHTML = ''; progEl.innerHTML = ''; doneEl.innerHTML = '';
+    d.tasks.forEach(t => {
+      const div = document.createElement('div');
+      div.className = 'kanban-item';
+      const prioClass = 'p' + t.priority.substr(1);
+      const prioTag = '<span class="priority-tag ' + prioClass + '">' + t.priority + '</span>';
+      div.innerHTML = '<strong>' + t.id + ' — ' + t.name + '</strong><br><span class="agent-tag">' + t.agent + '</span>' + prioTag;
+      if (t.commit) div.innerHTML += '<span class="commit-link">' + t.commit.substr(0, 20) + '</span>';
+      if (t.status === 'todo') todoEl.appendChild(div);
+      else if (t.status === 'progress') progEl.appendChild(div);
+      else doneEl.appendChild(div);
+    });
+
+    // EC2
+    const ec2El = document.getElementById('ec2List');
+    ec2El.innerHTML = '';
+    d.ec2.forEach(e => {
+      ec2El.innerHTML += '<div><span class="dot ' + e.state + '"></span><b>' + e.name + '</b> ' + e.ip + ' <span style="color:var(--text2)">(' + e.type + ')</span></div>';
+    });
+
+    // SRE Feed
+    const feedEl = document.getElementById('sreFeed');
+    feedEl.innerHTML = '<table>';
+    d.sre.forEach(s => {
+      const cls = s.level || '';
+      feedEl.innerHTML += '<tr><td>' + s.time + '</td><td class="' + cls + '">' + s.msg + '</td></tr>';
+    });
+    feedEl.innerHTML += '</table>';
+
+    document.getElementById('lastUpdate').textContent = 'Última atualização: ' + d.ts + ' | Dashboard via SRE Agente_30';
+
+    buildCharts(d);
+  } catch (e) {
+    document.getElementById('sreFeed').innerHTML = '<table><tr><td style="color:var(--red)">Aguardando primeira sincronização...</td></tr></table>';
+    document.getElementById('agentGrid').innerHTML = '<div style="color:var(--red)">Falha ao carregar status.json: ' + e.message + '</div>';
+  }
+}
+refresh();
+setInterval(refresh, 10000);
+</script>
+</body>
+</html>

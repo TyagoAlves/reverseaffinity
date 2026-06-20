@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QDockWidget, QTreeWidget, QTreeWidgetItem, QToolBar, QAction, QStatusBar, QMenuBar, QSlider, QDoubleSpinBox, QGroupBox, QFormLayout, QPushButton
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QFont, QPalette, QColor
+from PyQt5.QtGui import QFont, QPalette, QColor, QKeySequence
 
 from reverseaffinity.i18n import _
 from reverseaffinity.shared.resources import apply_dark_theme
@@ -17,15 +17,15 @@ class EffectsMainWindow(QMainWindow):
 
         mbar = self.menuBar()
         file_m = mbar.addMenu(_("&File"))
-        file_m.addAction(_("&New Composition"), self.new_comp, "Ctrl+N")
-        file_m.addAction(_("&Save"), self.save_project, "Ctrl+S")
+        file_m.addAction(self._action(_("&New Composition"), self.new_comp, "Ctrl+N"))
+        file_m.addAction(self._action(_("&Save"), self.save_project, "Ctrl+S"))
         file_m.addSeparator()
-        file_m.addAction(_("E&xit"), self.close, "Ctrl+Q")
+        file_m.addAction(self._action(_("E&xit"), self.close, "Ctrl+Q"))
 
         comp_m = mbar.addMenu(_("&Composition"))
         comp_m.addAction(_("New &Layer"), self.new_layer)
         comp_m.addAction(_("New &Solid"), self.new_solid)
-        comp_m.addAction(_("Pre-compose"), self.pre_compose, "Ctrl+Shift+C")
+        comp_m.addAction(self._action(_("Pre-compose"), self.pre_compose, "Ctrl+Shift+C"))
 
         effect_m = mbar.addMenu(_("&Effect"))
         effect_m.addAction(_("Add &Effect..."), self.add_effect)
@@ -77,13 +77,24 @@ class EffectsMainWindow(QMainWindow):
     def pre_compose(self): pass
     def add_effect(self): pass
 
+    @staticmethod
+    def _action(text, slot, shortcut=None):
+        a = QAction(text)
+        a.triggered.connect(slot)
+        if shortcut:
+            a.setShortcut(QKeySequence(shortcut))
+        return a
+
 
 def main():
-    app = QApplication(sys.argv)
-    app.setApplicationName("reverseaffinity Effects")
+    app = QApplication.instance()
+    if app is None:
+        app = QApplication(sys.argv)
+        app.setApplicationName("reverseaffinity Effects")
     win = EffectsMainWindow()
     win.show()
-    sys.exit(app.exec_())
+    if QApplication.instance() is app:
+        sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

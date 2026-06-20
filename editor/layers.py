@@ -141,6 +141,12 @@ class LayerStack:
     def __init__(self, width=800, height=600):
         self.layers = [Layer(width, height, "Background")]
         self.active_index = 0
+        self._cache = None
+        self._cache_dirty = True
+
+    def invalidate_cache(self):
+        self._cache_dirty = True
+        self._cache = None
 
     @property
     def active(self):
@@ -159,6 +165,7 @@ class LayerStack:
         layer = Layer(w, h, name or f"Layer {idx}", Qt.transparent)
         self.layers.append(layer)
         self.active_index = idx
+        self.invalidate_cache()
         return layer
 
     def add_background(self, color=QColor(Qt.white)):
@@ -169,12 +176,14 @@ class LayerStack:
         layer = Layer(w, h, f"Background", color)
         self.layers.insert(0, layer)
         self.active_index = idx + 1
+        self.invalidate_cache()
 
     def add_group(self, name=None):
         idx = len(self.layers)
         group = GroupLayer(name or f"Group {idx}")
         self.layers.append(group)
         self.active_index = idx
+        self.invalidate_cache()
         return group
 
     def is_group(self, index):
@@ -204,6 +213,7 @@ class LayerStack:
         group.children = list(to_group)
         self.layers.insert(first_idx, group)
         self.active_index = first_idx
+        self.invalidate_cache()
         return group
 
     def ungroup(self, index):
@@ -217,6 +227,7 @@ class LayerStack:
             self.active_index += len(children) - 1
         elif self.active_index == index:
             self.active_index = index
+        self.invalidate_cache()
 
     def move_to_group(self, layer_idx, group_idx):
         if layer_idx == group_idx:
@@ -237,6 +248,7 @@ class LayerStack:
         self.layers.insert(insert_pos, layer)
         group.children.append(layer)
         self.active_index = insert_pos
+        self.invalidate_cache()
 
     def _remove_child_ref(self, layer):
         for l in self.layers:
@@ -279,6 +291,7 @@ class LayerStack:
         else:
             removed_before = sum(1 for idx in to_remove if idx < self.active_index)
             self.active_index -= removed_before
+        self.invalidate_cache()
 
     def move_layer(self, from_idx, to_idx):
         if not (0 <= from_idx < len(self.layers) and 0 <= to_idx < len(self.layers)):
@@ -298,6 +311,7 @@ class LayerStack:
         if new_parent is not None:
             new_parent.children.append(layer)
         self.active_index = to_idx
+        self.invalidate_cache()
 
     def _find_parent_group(self, layer):
         for l in self.layers:
@@ -325,6 +339,7 @@ class LayerStack:
             new_layer = layer.copy()
             self.layers.insert(index + 1, new_layer)
             self.active_index = index + 1
+        self.invalidate_cache()
 
     def _deep_copy_group(self, group):
         new_group = GroupLayer(group.name)
@@ -351,12 +366,15 @@ class LayerStack:
         self.active_index = 0
 
     def merge_visible(self):
+        self.invalidate_cache()
         composite = self.composite()
         self.layers = [Layer(composite.width(), composite.height(), "Merged")]
         self.layers[0].image = composite
         self.active_index = 0
 
     def composite(self):
+        if not self._cache_dirty and self._cache is not None and not self._cache.isNull():
+            return self._cache
         if not self.layers:
             return QImage()
         w, h = 800, 600
@@ -377,7 +395,9 @@ class LayerStack:
                     self._composite_group_into(layer, result, w, h)
             elif layer.visible:
                 self._composite_layer_into(layer, result, w, h)
-        return _float_array_to_qimage(result, w, h)
+        self._cache = _float_array_to_qimage(result, w, h)
+        self._cache_dirty = False
+        return self._cache
 
     def _composite_layer_into(self, layer, result, w, h):
         if isinstance(layer, AdjustmentLayer):

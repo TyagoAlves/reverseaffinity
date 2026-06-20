@@ -1,0 +1,46 @@
+=== reverseaffinity — Sprint 3 Status ===
+Data: 2026-06-20 20:00 UTC
+Branch: main
+Último commit: Fix video_app + timeline methods + S3 AppImage
+
+Resumo: 30 agentes, 24/30 tasks done (80%), 3 progress, 3 todo
+
+=== Tasks Done (24) ===
+T01-T04 (merges), T05 (test fixes), T06 (layer masks), T07 (layer groups),
+T08 (UI wiring), T09 (pen tool), T10 (brush presets), T11 (preferences+i18n),
+T12 (history thumbs), T13 (snapping), T14 (gradient editor), T18 (palettes),
+T19 (guides), T20 (zoom), T21 (crop tool), T22 (dodge/burn/sponge),
+T23 (export PSD/TIFF/WebP), T24 (coverage), T26 (dark theme), T27 (i18n 4 locales),
+T29 (docs)
+
+=== Tasks In Progress (3) ===
+T15 (C++ SIMD blends), T25 (benchmarks), T30 (dashboard telemetria)
+
+=== Tasks Todo (3) ===
+T16 (C++ history), T17 (GPU filters), T28 (plugin system)
+
+=== Novas implementações ===
+1. video_app.py reescrito com funcionalidade real:
+   - SourceMonitor: import media, play/pause com QTimer, scrub slider, timecode
+   - ProjectPanel: import files, tree view, add to timeline
+   - VideoMainWindow: transport conectado, play loop, project lifecycle
+   - Todos os métodos de menu implementados com statusBar feedback
+2. timeline_widget.py:
+   - add_track(), remove_track(), clear(), zoom_in/out/fit()
+   - toggle_snap(), snap_enabled, set_zoom_level()
+   - add_clip_to_track(name, filepath) — adiciona clip na timeline
+   - _timeline init com Timeline() vazia (não mais None)
+3. S3: AppImage copiado para reverseaffinity-x86_64.AppImage
+4. main.py: _get_app() pattern, runners dict, --help
+
+=== Dashboard SRE ===
+URL: http://16.59.211.231/
+Ambos os nomes das AppImages funcionam (old + new)
+
+=== Próximos passos ===
+1. User rodar: python3 main.py video (na raiz do projeto)
+2. T15: C++ SIMD blends
+3. T16: port history C++
+4. T17: GPU filters OpenGL
+5. T28: plugin system esqueleto
+

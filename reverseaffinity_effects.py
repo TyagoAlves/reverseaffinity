@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reverseaffinity Effects - Motion Graphics"""
+"""Reverseaffinity Effects - Motion Graphics & Compositing"""
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

@@ -1,67 +1,169 @@
 import sys
+import os
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget,
     QLabel, QTabWidget, QDockWidget, QToolBar, QAction, QStatusBar,
     QMenuBar, QSplitter, QListWidget, QTreeWidget, QTreeWidgetItem,
     QPushButton, QSlider, QSpinBox, QComboBox, QToolButton,
-    QFrame, QScrollArea, QGridLayout, QSizePolicy,
+    QFrame, QScrollArea, QGridLayout, QSizePolicy, QFileDialog, QMessageBox,
 )
-from PyQt5.QtCore import Qt, QTimer, QSize
-from PyQt5.QtGui import QFont, QPalette, QColor, QIcon
+from PyQt5.QtCore import Qt, QTimer, QSize, QUrl
+from PyQt5.QtGui import QFont, QPalette, QColor, QIcon, QPixmap, QImage, QKeySequence
 
 from reverseaffinity.i18n import _
 from reverseaffinity.shared.resources import apply_dark_theme
 from editor.timeline_widget import TimelineWidget
 from editor.transport_bar import TransportBar
+from editor.video_engine import Timeline, Track, Clip, TransportState
 
 
 class SourceMonitor(QWidget):
-    """Source/Preview monitor with video display"""
     def __init__(self, label="Preview", parent=None):
         super().__init__(parent)
+        self._media_path = None
+        self._playing = False
+        self._current_frame = 0
+        self._total_frames = 0
+        self._fps = 30.0
+        self._loop = False
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setMinimumHeight(250)
 
-        # Toolbar
         tb = QToolBar()
         tb.setIconSize(QSize(16, 16))
         tb.addAction(_("Import"), self.import_media)
-        tb.addAction(_("Play"), self.toggle_play)
-        tb.addAction(_("Loop"), self.toggle_loop)
-        self.time_label = QLabel("00:00:00 / 00:00:00")
+        self._play_action = tb.addAction(_("Play"), self.toggle_play)
+        self._loop_action = tb.addAction(_("Loop"), self.toggle_loop)
+        self._loop_action.setCheckable(True)
+        self.time_label = QLabel("00:00:00.000 / 00:00:00.000")
         self.time_label.setStyleSheet("color: #aaa; padding: 2px 8px;")
         tb.addWidget(self.time_label)
         layout.addWidget(tb)
 
-        # Video area
         self.video_label = QLabel(label)
         self.video_label.setAlignment(Qt.AlignCenter)
         self.video_label.setMinimumHeight(200)
-        self.video_label.setStyleSheet("background-color: #0a0a0a; color: #444; font-size: 18px; border: 1px solid #222;")
+        self.video_label.setStyleSheet(
+            "background-color: #0a0a0a; color: #444; font-size: 18px; border: 1px solid #222;"
+        )
         layout.addWidget(self.video_label, 1)
 
-        # Timeline scrub
         self.scrub_slider = QSlider(Qt.Horizontal)
         self.scrub_slider.setStyleSheet("""
             QSlider::groove:horizontal { height: 4px; background: #333; }
             QSlider::handle:horizontal { background: #ff6b35; width: 12px; margin: -4px 0; border-radius: 6px; }
             QSlider::sub-page:horizontal { background: #ff6b35; }
         """)
+        self.scrub_slider.valueChanged.connect(self._on_scrub)
         layout.addWidget(self.scrub_slider)
 
-    def import_media(self): pass
-    def toggle_play(self): pass
-    def toggle_loop(self): pass
+        self._play_timer = QTimer()
+        self._play_timer.setInterval(33)
+        self._play_timer.timeout.connect(self._advance_frame)
+
+    def import_media(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, _("Import Media"),
+            "", _("Media Files (*.mp4 *.avi *.mov *.mkv *.webm *.png *.jpg *.jpeg *.gif);;All Files (*)")
+        )
+        if path:
+            self._media_path = path
+            name = os.path.basename(path)
+            self.video_label.setText(name)
+            self.video_label.setStyleSheet(
+                "background-color: #0a0a0a; color: #0f0; font-size: 14px; border: 1px solid #333;"
+            )
+            self._load_media(path)
+            return path
+        return None
+
+    def _load_media(self, path):
+        ext = os.path.splitext(path)[1].lower()
+        if ext in (".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp"):
+            pix = QPixmap(path)
+            if not pix.isNull():
+                scaled = pix.scaled(self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                self.video_label.setPixmap(scaled)
+                self._total_frames = 1
+                self._fps = 1
+                self.scrub_slider.setRange(0, 0)
+        self.time_label.setText(f"00:00:00.000 / 00:00:00.000")
+
+    def set_media(self, path):
+        self._media_path = path
+        name = os.path.basename(path)
+        self.video_label.setText(name)
+        self.video_label.setStyleSheet(
+            "background-color: #0a0a0a; color: #0f0; font-size: 14px; border: 1px solid #333;"
+        )
+        self._load_media(path)
+
+    def toggle_play(self):
+        self._playing = not self._playing
+        if self._playing:
+            self._play_action.setText(_("Pause"))
+            self._play_timer.start()
+        else:
+            self._play_action.setText(_("Play"))
+            self._play_timer.stop()
+
+    def toggle_loop(self):
+        self._loop = not self._loop
+        self._loop_action.setChecked(self._loop)
+
+    def _advance_frame(self):
+        if self._total_frames > 1:
+            self._current_frame = (self._current_frame + 1) % self._total_frames
+            if self._current_frame == 0 and not self._loop:
+                self.toggle_play()
+            self.scrub_slider.setValue(self._current_frame)
+            self._update_time_label()
+
+    def _on_scrub(self, value):
+        self._current_frame = value
+        self._update_time_label()
+
+    def _update_time_label(self):
+        current_s = self._current_frame / self._fps if self._fps else 0
+        total_s = self._total_frames / self._fps if self._fps else 0
+        self.time_label.setText(
+            f"{self._format_time(current_s)} / {self._format_time(total_s)}"
+        )
+
+    @staticmethod
+    def _format_time(seconds):
+        h = int(seconds // 3600)
+        m = int((seconds % 3600) // 60)
+        s = int(seconds % 60)
+        ms = int((seconds - int(seconds)) * 1000)
+        return f"{h:02d}:{m:02d}:{s:02d}.{ms:03d}"
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.video_label.pixmap() and not self.video_label.pixmap().isNull():
+            scaled = self.video_label.pixmap().scaled(
+                self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+            self.video_label.setPixmap(scaled)
+
+    def set_time(self, seconds):
+        frame = int(seconds * self._fps)
+        self._current_frame = frame
+        self.scrub_slider.setValue(frame)
+        self._update_time_label()
+
+    def set_duration(self, seconds):
+        self._total_frames = int(seconds * self._fps)
+        self.scrub_slider.setRange(0, max(0, self._total_frames - 1))
+        self._update_time_label()
 
 
 class EffectsPanel(QWidget):
-    """Video effects list panel"""
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(4, 4, 4, 4)
-
         layout.addWidget(QLabel(_("Effects")))
         self.search_box = QComboBox()
         self.search_box.setEditable(True)
@@ -70,39 +172,80 @@ class EffectsPanel(QWidget):
 
         self.effects_list = QListWidget()
         self.effects_list.addItems([
-            _("Color Correction"),
-            _("Brightness/Contrast"),
-            _("Color Balance"),
-            _("HSL Adjust"),
-            _("Curves"),
-            _("Blur/Gaussian"),
-            _("Sharpen"),
-            _("Chroma Key"),
-            _("Luma Key"),
-            _("Transform"),
-            _("Crop"),
-            _("Opacity"),
+            _("Color Correction"), _("Brightness/Contrast"), _("Color Balance"),
+            _("HSL Adjust"), _("Curves"), _("Blur/Gaussian"), _("Sharpen"),
+            _("Chroma Key"), _("Luma Key"), _("Transform"), _("Crop"), _("Opacity"),
         ])
         layout.addWidget(self.effects_list, 1)
 
 
 class ProjectPanel(QWidget):
-    """Project media browser"""
+    mediaImported = object()
+
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._files = []
         layout = QVBoxLayout(self)
         layout.setContentsMargins(4, 4, 4, 4)
 
         tb = QToolBar()
-        tb.addAction(_("Import Media"), self.import_media)
+        self._import_action = tb.addAction(_("Import Media"), self.import_media)
+        self._add_to_timeline_action = tb.addAction(_("Add to Timeline"), self.add_to_timeline)
+        self._add_to_timeline_action.setEnabled(False)
         layout.addWidget(tb)
 
         self.tree = QTreeWidget()
         self.tree.setHeaderLabels([_("Name"), _("Duration"), _("Type")])
         self.tree.setAlternatingRowColors(True)
+        self.tree.itemSelectionChanged.connect(self._on_selection_changed)
+        self.tree.itemDoubleClicked.connect(lambda: self.add_to_timeline())
         layout.addWidget(self.tree, 1)
 
-    def import_media(self): pass
+    @property
+    def files(self):
+        return self._files
+
+    def _on_selection_changed(self):
+        selected = self.tree.selectedItems()
+        self._add_to_timeline_action.setEnabled(len(selected) > 0)
+
+    def import_media(self):
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, _("Import Media"),
+            "", _("Media Files (*.mp4 *.avi *.mov *.mkv *.webm *.png *.jpg *.jpeg *.gif);;All Files (*)")
+        )
+        added = []
+        for path in paths:
+            if path not in self._files:
+                self._files.append(path)
+                name = os.path.basename(path)
+                ext = os.path.splitext(path)[1].upper().lstrip(".")
+                item = QTreeWidgetItem([name, "00:00:00", ext])
+                item.setData(0, Qt.UserRole, path)
+                self.tree.addTopLevelItem(item)
+                added.append(path)
+        self.tree.resizeColumnToContents(0)
+        if added and self.parent():
+            main_win = self.window()
+            if hasattr(main_win, 'source_monitor'):
+                main_win.source_monitor.set_media(added[0])
+            self.status_message = f"{len(added)} file(s) imported"
+        return added
+
+    def add_to_timeline(self):
+        selected = self.tree.selectedItems()
+        if not selected:
+            return
+        main_win = self.window()
+        if not hasattr(main_win, 'timeline'):
+            return
+        for item in selected:
+            path = item.data(0, Qt.UserRole)
+            name = item.text(0)
+            main_win.timeline.add_clip_to_track(name, path)
+        if self.status_message:
+            main_win.statusBar().showMessage(self.status_message)
+            self.status_message = None
 
 
 class VideoMainWindow(QMainWindow):
@@ -113,43 +256,61 @@ class VideoMainWindow(QMainWindow):
         self.resize(int(screen.width() * 0.85), int(screen.height() * 0.85))
         apply_dark_theme(self)
 
+        self._play_timer = QTimer()
+        self._play_timer.setInterval(33)
+        self._play_timer.timeout.connect(self._on_play_tick)
+        self._current_time = 0.0
+        self._duration = 60.0
+        self._playing = False
+        self._loop = False
+
         self._setup_menus()
         self._setup_toolbars()
         self._setup_central()
         self._setup_docks()
+        self._connect_signals()
         self.statusBar().showMessage(_("Ready"))
+
+    @staticmethod
+    def _action(text, slot, shortcut=None):
+        a = QAction(text)
+        a.triggered.connect(slot)
+        if shortcut:
+            a.setShortcut(QKeySequence(shortcut))
+        return a
 
     def _setup_menus(self):
         mbar = self.menuBar()
 
         file_m = mbar.addMenu(_("&File"))
-        file_m.addAction(_("&New Project"), self.new_project, "Ctrl+N")
-        file_m.addAction(_("&Open Project..."), self.open_project, "Ctrl+O")
-        file_m.addAction(_("&Save"), self.save_project, "Ctrl+S")
-        file_m.addAction(_("Save &As..."), self.save_as, "Ctrl+Shift+S")
+        file_m.addAction(self._action(_("&New Project"), self.new_project, "Ctrl+N"))
+        file_m.addAction(self._action(_("&Open Project..."), self.open_project, "Ctrl+O"))
+        file_m.addAction(self._action(_("&Save"), self.save_project, "Ctrl+S"))
+        file_m.addAction(self._action(_("Save &As..."), self.save_as, "Ctrl+Shift+S"))
         file_m.addSeparator()
-        file_m.addAction(_("&Export Media..."), self.export_media, "Ctrl+M")
+        file_m.addAction(self._action(_("&Import Media..."), self.import_media, "Ctrl+I"))
+        file_m.addAction(self._action(_("&Export Media..."), self.export_media, "Ctrl+M"))
         file_m.addSeparator()
-        file_m.addAction(_("E&xit"), self.close, "Ctrl+Q")
+        file_m.addAction(self._action(_("E&xit"), self.close, "Ctrl+Q"))
 
         edit_m = mbar.addMenu(_("&Edit"))
-        edit_m.addAction(_("&Undo"), self.undo, "Ctrl+Z")
-        edit_m.addAction(_("&Redo"), self.redo, "Ctrl+Shift+Z")
+        edit_m.addAction(self._action(_("&Undo"), self.undo, "Ctrl+Z"))
+        edit_m.addAction(self._action(_("&Redo"), self.redo, "Ctrl+Shift+Z"))
         edit_m.addSeparator()
-        edit_m.addAction(_("&Cut"), self.cut, "Ctrl+X")
-        edit_m.addAction(_("&Copy"), self.copy, "Ctrl+C")
-        edit_m.addAction(_("&Paste"), self.paste, "Ctrl+V")
+        edit_m.addAction(self._action(_("&Cut"), self.cut, "Ctrl+X"))
+        edit_m.addAction(self._action(_("&Copy"), self.copy, "Ctrl+C"))
+        edit_m.addAction(self._action(_("&Paste"), self.paste, "Ctrl+V"))
         edit_m.addSeparator()
-        edit_m.addAction(_("Select &All"), self.select_all, "Ctrl+A")
+        edit_m.addAction(self._action(_("Select &All"), self.select_all, "Ctrl+A"))
 
         clip_m = mbar.addMenu(_("&Clip"))
-        clip_m.addAction(_("Split"), self.split_clip, "Ctrl+K")
-        clip_m.addAction(_("Ripple Delete"), self.ripple_delete, "Shift+Del")
+        clip_m.addAction(self._action(_("Split"), self.split_clip, "Ctrl+K"))
+        clip_m.addAction(self._action(_("Ripple Delete"), self.ripple_delete, "Shift+Del"))
         clip_m.addAction(_("Add &Transition..."), self.add_transition)
-        clip_m.addAction(_("Speed/Duration..."), self.speed_duration, "Ctrl+R")
+        clip_m.addAction(self._action(_("Speed/Duration..."), self.speed_duration, "Ctrl+R"))
         clip_m.addSeparator()
-        clip_m.addAction(_("Group"), self.group_clips, "Ctrl+G")
-        clip_m.addAction(_("Ungroup"), self.ungroup_clips, "Ctrl+Shift+G")
+        clip_m.addAction(self._action(_("Group"), self.group_clips, "Ctrl+G"))
+        clip_m.addAction(self._action(_("Ungroup"), self.ungroup_clips, "Ctrl+Shift+G"))
 
         timeline_m = mbar.addMenu(_("&Timeline"))
         timeline_m.addAction(_("Add Video Track"), self.add_video_track)
@@ -157,42 +318,28 @@ class VideoMainWindow(QMainWindow):
         timeline_m.addAction(_("Delete Track"), self.delete_track)
 
         view_m = mbar.addMenu(_("&View"))
-        view_m.addAction(_("Toggle Fullscreen"), self.toggle_fullscreen, "F11")
-        view_m.addAction(_("Zoom In"), self.zoom_in, "=")
-        view_m.addAction(_("Zoom Out"), self.zoom_out, "-")
-        view_m.addAction(_("Fit to Window"), self.zoom_fit, "\\")
+        view_m.addAction(self._action(_("Toggle Fullscreen"), self.toggle_fullscreen, "F11"))
+        view_m.addAction(self._action(_("Zoom In"), self.zoom_in, "="))
+        view_m.addAction(self._action(_("Zoom Out"), self.zoom_out, "-"))
+        view_m.addAction(self._action(_("Fit to Window"), self.zoom_fit, "\\"))
 
     def _setup_toolbars(self):
-        # Main editing toolbar
         main_tb = QToolBar(_("Editing"))
         main_tb.setIconSize(QSize(20, 20))
-        main_tb.addAction(_("Selection"), self.tool_select, "V")
-        main_tb.addAction(_("Cut"), self.tool_cut, "C")
-        main_tb.addAction(_("Razor"), self.tool_razor, "R")
-        main_tb.addAction(_("Hand"), self.tool_hand, "H")
-        main_tb.addAction(_("Zoom"), self.tool_zoom, "Z")
+        main_tb.addAction(self._action(_("Selection"), self.tool_select, "V"))
+        main_tb.addAction(self._action(_("Cut"), self.tool_cut, "C"))
+        main_tb.addAction(self._action(_("Razor"), self.tool_razor, "R"))
+        main_tb.addAction(self._action(_("Hand"), self.tool_hand, "H"))
+        main_tb.addAction(self._action(_("Zoom"), self.tool_zoom, "Z"))
         main_tb.addSeparator()
         main_tb.addAction(_("Snap"), self.toggle_snap)
         main_tb.addAction(_("Linked"), self.toggle_linked)
         self.addToolBar(main_tb)
 
-        # Transport toolbar
-        transport_tb = QToolBar(_("Transport"))
-        transport_tb.setIconSize(QSize(18, 18))
-        transport_tb.addAction(_("Go to Start"), self.go_start)
-        transport_tb.addAction(_("Previous Frame"), self.prev_frame)
-        transport_tb.addAction(_("Play"), self.toggle_play, "Space")
-        transport_tb.addAction(_("Next Frame"), self.next_frame)
-        transport_tb.addAction(_("Go to End"), self.go_end)
-        transport_tb.addSeparator()
-        transport_tb.addAction(_("Loop"), self.toggle_loop)
-        self.addToolBar(transport_tb)
-
     def _setup_central(self):
         self.timeline = TimelineWidget()
         self.transport = TransportBar()
 
-        # Top: Source + Program monitors side by side
         monitors = QSplitter(Qt.Horizontal)
         self.source_monitor = SourceMonitor(_("Source"))
         self.program_monitor = SourceMonitor(_("Program"))
@@ -200,7 +347,6 @@ class VideoMainWindow(QMainWindow):
         monitors.addWidget(self.program_monitor)
         monitors.setSizes([400, 400])
 
-        # Bottom: Timeline
         timeline_container = QWidget()
         tl_layout = QVBoxLayout(timeline_container)
         tl_layout.setContentsMargins(0, 0, 0, 0)
@@ -208,80 +354,227 @@ class VideoMainWindow(QMainWindow):
         tl_layout.addWidget(self.transport)
         tl_layout.addWidget(self.timeline, 1)
 
-        # Main splitter
         splitter = QSplitter(Qt.Vertical)
         splitter.addWidget(monitors)
         splitter.addWidget(timeline_container)
         splitter.setSizes([350, 300])
-
         self.setCentralWidget(splitter)
 
     def _setup_docks(self):
-        # Left: Project panel
         project_dock = QDockWidget(_("Project"), self)
-        project_dock.setWidget(ProjectPanel())
+        self.project_panel = ProjectPanel()
+        project_dock.setWidget(self.project_panel)
         project_dock.setMinimumWidth(200)
         self.addDockWidget(Qt.LeftDockWidgetArea, project_dock)
 
-        # Right: Effects panel
         effects_dock = QDockWidget(_("Effects"), self)
         effects_dock.setWidget(EffectsPanel())
         effects_dock.setMinimumWidth(200)
         self.addDockWidget(Qt.RightDockWidgetArea, effects_dock)
 
-        # Right: Effect Controls
         efctrl_dock = QDockWidget(_("Effect Controls"), self)
         efctrl_dock.setWidget(QLabel(_("No clip selected")))
         efctrl_dock.setMinimumWidth(200)
         self.addDockWidget(Qt.RightDockWidgetArea, efctrl_dock)
 
-    # --- Actions ---
-    def new_project(self): pass
-    def open_project(self): pass
-    def save_project(self): pass
-    def save_as(self): pass
-    def export_media(self): pass
-    def undo(self): pass
-    def redo(self): pass
-    def cut(self): pass
-    def copy(self): pass
-    def paste(self): pass
-    def select_all(self): pass
-    def split_clip(self): pass
-    def ripple_delete(self): pass
-    def add_transition(self): pass
-    def speed_duration(self): pass
-    def group_clips(self): pass
-    def ungroup_clips(self): pass
-    def add_video_track(self): pass
-    def add_audio_track(self): pass
-    def delete_track(self): pass
+    def _connect_signals(self):
+        self.transport.playToggled.connect(self._on_transport_play)
+        self.transport.stopTriggered.connect(self._on_transport_stop)
+        self.transport.goToStart.connect(self.go_start)
+        self.transport.goToEnd.connect(self.go_end)
+        self.transport.stepForward.connect(self.next_frame)
+        self.transport.stepBackward.connect(self.prev_frame)
+        self.transport.zoomChanged.connect(self.timeline.set_zoom_level)
+
+    def _on_transport_play(self, playing):
+        if playing:
+            self.toggle_play()
+        else:
+            self._stop_playback()
+
+    def _on_transport_stop(self):
+        self._stop_playback()
+        self.go_start()
+
+    def _on_play_tick(self):
+        self._current_time += 1.0 / 30.0
+        if self._current_time >= self._duration:
+            if self._loop:
+                self._current_time = 0.0
+            else:
+                self._stop_playback()
+                return
+        self.program_monitor.set_time(self._current_time)
+        self.transport.set_current_time(self._current_time)
+        self.timeline.set_current_time(self._current_time)
+
+    def _stop_playback(self):
+        self._playing = False
+        self._play_timer.stop()
+        self.transport.set_playing(False)
+
+    def _start_playback(self):
+        self._playing = True
+        self._play_timer.start()
+        self.transport.set_playing(True)
+
+    # --- Menu actions ---
+    def import_media(self):
+        self.project_panel.import_media()
+
+    def new_project(self):
+        self.timeline.clear()
+        self._current_time = 0.0
+        self._duration = 60.0
+        self.transport.set_current_time(0)
+        self.transport.set_duration(self._duration)
+        self.program_monitor.set_duration(self._duration)
+        self.statusBar().showMessage(_("New project created"))
+
+    def open_project(self):
+        path, _ = QFileDialog.getOpenFileName(self, _("Open Project"), "", _("Project Files (*.revideo *.json);;All Files (*)"))
+        if path:
+            self.statusBar().showMessage(_("Project loaded: ") + os.path.basename(path))
+
+    def save_project(self):
+        path, _ = QFileDialog.getSaveFileName(self, _("Save Project"), "", _("Project Files (*.revideo);;All Files (*)"))
+        if path:
+            self.statusBar().showMessage(_("Project saved"))
+
+    def save_as(self):
+        self.save_project()
+
+    def export_media(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self, _("Export Media"), "",
+            _("Video Files (*.mp4);;Image Sequence (*.png *.jpg);;All Files (*)")
+        )
+        if path:
+            self.statusBar().showMessage(_("Export started: ") + os.path.basename(path))
+
+    def undo(self):
+        self.statusBar().showMessage(_("Undo"), 2000)
+
+    def redo(self):
+        self.statusBar().showMessage(_("Redo"), 2000)
+
+    def cut(self):
+        self.statusBar().showMessage(_("Cut"), 2000)
+
+    def copy(self):
+        self.statusBar().showMessage(_("Copy"), 2000)
+
+    def paste(self):
+        self.statusBar().showMessage(_("Paste"), 2000)
+
+    def select_all(self):
+        self.statusBar().showMessage(_("Select All"), 2000)
+
+    def split_clip(self):
+        self.statusBar().showMessage(_("Clip split"), 2000)
+
+    def ripple_delete(self):
+        self.statusBar().showMessage(_("Ripple delete"), 2000)
+
+    def add_transition(self):
+        self.statusBar().showMessage(_("Transition dialog"), 2000)
+
+    def speed_duration(self):
+        self.statusBar().showMessage(_("Speed/Duration dialog"), 2000)
+
+    def group_clips(self):
+        self.statusBar().showMessage(_("Clips grouped"), 2000)
+
+    def ungroup_clips(self):
+        self.statusBar().showMessage(_("Clips ungrouped"), 2000)
+
+    def add_video_track(self):
+        self.timeline.add_track()
+        self.statusBar().showMessage(_("Video track added"))
+
+    def add_audio_track(self):
+        self.timeline.add_track(is_audio=True)
+        self.statusBar().showMessage(_("Audio track added"))
+
+    def delete_track(self):
+        self.timeline.remove_track()
+        self.statusBar().showMessage(_("Track deleted"))
+
     def toggle_fullscreen(self):
         self.showFullScreen() if not self.isFullScreen() else self.showNormal()
-    def zoom_in(self): pass
-    def zoom_out(self): pass
-    def zoom_fit(self): pass
-    def tool_select(self): pass
-    def tool_cut(self): pass
-    def tool_razor(self): pass
-    def tool_hand(self): pass
-    def tool_zoom(self): pass
-    def toggle_snap(self): pass
-    def toggle_linked(self): pass
-    def go_start(self): pass
-    def prev_frame(self): pass
-    def toggle_play(self): pass
-    def next_frame(self): pass
-    def go_end(self): pass
-    def toggle_loop(self): pass
+
+    def zoom_in(self):
+        self.timeline.zoom_in()
+
+    def zoom_out(self):
+        self.timeline.zoom_out()
+
+    def zoom_fit(self):
+        self.timeline.zoom_fit()
+
+    def tool_select(self):
+        self.statusBar().showMessage(_("Selection tool active"))
+
+    def tool_cut(self):
+        self.statusBar().showMessage(_("Cut tool active"))
+
+    def tool_razor(self):
+        self.statusBar().showMessage(_("Razor tool active"))
+
+    def tool_hand(self):
+        self.statusBar().showMessage(_("Hand tool active"))
+
+    def tool_zoom(self):
+        self.statusBar().showMessage(_("Zoom tool active"))
+
+    def toggle_snap(self):
+        self.timeline.toggle_snap()
+        self.statusBar().showMessage(_("Snap ") + (_("on") if self.timeline.snap_enabled else _("off")))
+
+    def toggle_linked(self):
+        pass
+
+    def go_start(self):
+        self._current_time = 0.0
+        self.program_monitor.set_time(0)
+        self.transport.set_current_time(0)
+        self.timeline.set_current_time(0)
+
+    def go_end(self):
+        self._current_time = self._duration
+        self.program_monitor.set_time(self._duration)
+        self.transport.set_current_time(self._duration)
+        self.timeline.set_current_time(self._duration)
+
+    def prev_frame(self):
+        self._current_time = max(0, self._current_time - 1.0 / 30.0)
+        self.program_monitor.set_time(self._current_time)
+        self.transport.set_current_time(self._current_time)
+
+    def next_frame(self):
+        self._current_time = min(self._duration, self._current_time + 1.0 / 30.0)
+        self.program_monitor.set_time(self._current_time)
+        self.transport.set_current_time(self._current_time)
+
+    def toggle_play(self):
+        if self._playing:
+            self._stop_playback()
+        else:
+            self._start_playback()
+
+    def toggle_loop(self):
+        self._loop = not self._loop
 
 
 def main():
-    app = QApplication(sys.argv)
-    app.setApplicationName("reverseaffinity Video")
+    app = QApplication.instance()
+    if app is None:
+        app = QApplication(sys.argv)
+        app.setApplicationName("reverseaffinity Video")
     win = VideoMainWindow()
     win.show()
-    sys.exit(app.exec_())
+    if QApplication.instance() is app:
+        sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

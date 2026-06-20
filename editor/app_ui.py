@@ -1410,9 +1410,11 @@ class MainWindow(QMainWindow):
 
 def main():
     import sys
-    app = QApplication(sys.argv)
-    app.setApplicationName("reverseaffinity")
-    app.setOrganizationName("reverseaffinity")
+    app = QApplication.instance()
+    if app is None:
+        app = QApplication(sys.argv)
+        app.setApplicationName("reverseaffinity")
+        app.setOrganizationName("reverseaffinity")
     app.setApplicationDisplayName("reverseaffinity Photo")
 
     from editor.resources import apply_dark_theme
@@ -1426,7 +1428,8 @@ def main():
     window.setWindowTitle("reverseaffinity Photo - [Untitled]")
     window.show()
 
-    sys.exit(app.exec_())
+    if QApplication.instance() is app:
+        sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
