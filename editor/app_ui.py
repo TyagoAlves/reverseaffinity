@@ -717,6 +717,7 @@ class MainWindow(QMainWindow):
         edit_m.addAction("&Undo", self._undo, QKeySequence.Undo)
         edit_m.addAction("&Redo", self._redo, QKeySequence("Ctrl+Shift+Z"))
         edit_m.addSeparator()
+        edit_m.addAction("&Paste", self._paste_image, QKeySequence.Paste)
         edit_m.addAction("&Fill...", self._fill)
         edit_m.addAction("&Clear", self._clear)
         edit_m.addSeparator()
@@ -981,6 +982,12 @@ class MainWindow(QMainWindow):
             return
         fmt = path.rsplit('.', 1)[-1] if '.' in path else 'png'
         batch_export_layers(self.canvas.layer_stack, path, fmt, parent=self)
+
+    def _paste_image(self):
+        if self.canvas.paste_from_clipboard():
+            self.statusBar().showMessage("Pasted image from clipboard")
+            self.layer_panel.refresh()
+            self.nav_panel.refresh()
 
     def _undo(self):
         if self.canvas.history.can_undo():

@@ -769,17 +769,55 @@ class CanvasView(QGraphicsView):
     def dropEvent(self, event):
         for url in event.mimeData().urls():
             path = url.toLocalFile()
-            if path and self.open_image(path):
+            if not path:
+                continue
+            ext = os.path.splitext(path)[1].lower()
+            if ext not in ('.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tiff', '.tif', '.webp', '.psd'):
+                continue
+            layer = self.import_image_as_layer(path)
+            if layer:
                 main = self.window()
-                if hasattr(main, 'current_path'):
-                    main.current_path = path
-                    main.setWindowTitle(f"reverseaffinite Photo - [{path}]")
-                    main.statusBar().showMessage(f"Opened: {path}")
+                if hasattr(main, 'statusBar'):
+                    main.statusBar().showMessage(f"Placed: {os.path.basename(path)}")
                 if hasattr(main, 'layer_panel'):
                     main.layer_panel.refresh()
+                if hasattr(main, 'nav_panel'):
+                    main.nav_panel.refresh()
                 event.acceptProposedAction()
                 return
         event.ignore()
+
+    def paste_from_clipboard(self):
+        from PyQt5.QtWidgets import QApplication
+        clipboard = QApplication.clipboard()
+        mime = clipboard.mimeData()
+        if mime.hasImage():
+            img = clipboard.image()
+            if img.isNull():
+                return False
+            if img.format() != QImage.Format_ARGB32:
+                img = img.convertToFormat(QImage.Format_ARGB32)
+            w, h = self.layer_stack.layers[0].image.width(), self.layer_stack.layers[0].image.height()
+            if img.width() != w or img.height() != h:
+                img = img.scaled(w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            layer = Layer(w, h, "Pasted", Qt.transparent)
+            layer.image = img.copy()
+            self.layer_stack.layers.append(layer)
+            self.layer_stack.active_index = len(self.layer_stack.layers) - 1
+            self._save_state("Paste image")
+            self._refresh()
+            return True
+        if mime.hasUrls():
+            for url in mime.urls():
+                path = url.toLocalFile()
+                if path:
+                    ext = os.path.splitext(path)[1].lower()
+                    if ext in ('.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tiff', '.tif', '.webp', '.psd'):
+                        layer = self.import_image_as_layer(path)
+                        if layer:
+                            self._save_state(f"Paste {os.path.basename(path)}")
+                            return True
+        return False
 
     def _ruler_hit_test(self, view_pos):
         ruler_size = 20
@@ -933,6 +971,14 @@ class CanvasView(QGraphicsView):
                     if self.history.can_undo():
                         self.history.undo(self.layer_stack)
                         self._refresh()
+            elif key == Qt.Key_V:
+                if self.paste_from_clipboard():
+                    self.status_changed.emit("Pasted image from clipboard")
+                    main = self.window()
+                    if hasattr(main, 'layer_panel'):
+                        main.layer_panel.refresh()
+                    if hasattr(main, 'nav_panel'):
+                        main.nav_panel.refresh()
             elif key == Qt.Key_Plus: self.zoom_in()
             elif key == Qt.Key_Minus: self.zoom_out()
             elif key == Qt.Key_0: self.zoom_fit()
