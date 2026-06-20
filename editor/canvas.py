@@ -106,6 +106,18 @@ class CanvasView(QGraphicsView):
         self.scene.setSceneRect(QRectF(composite.rect()))
         self.viewport().update()
 
+    def temp_save_layer(self):
+        layer = self.layer_stack.active
+        if layer:
+            self._temp_layer_image = layer.image.copy()
+
+    def temp_restore_layer(self):
+        if hasattr(self, '_temp_layer_image') and self._temp_layer_image:
+            layer = self.layer_stack.active
+            if layer:
+                layer.image = self._temp_layer_image.copy()
+                self.render()
+
     def _save_state(self, desc="Edit"):
         self.history.push(desc, self.layer_stack.layers, self.layer_stack.active_index)
 

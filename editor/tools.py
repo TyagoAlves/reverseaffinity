@@ -187,8 +187,15 @@ class GradientTool(Tool):
 
     def press(self, canvas, pos, mods):
         canvas.gradient_start = pos
+        canvas.temp_save_layer()
+
+    def move(self, canvas, last, pos, mods):
+        canvas.temp_restore_layer()
+        canvas.draw_gradient(canvas.gradient_start, pos)
 
     def release(self, canvas, pos, mods):
+        canvas.temp_restore_layer()
+        canvas._save_state("Gradient")
         canvas.draw_gradient(canvas.gradient_start, pos)
 
 
