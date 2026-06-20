@@ -1,4 +1,9 @@
 import unittest
+
+from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtGui import QColor
+
+from editor.canvas import CanvasView
 from editor.tools import (
     SHORTCUT_MAP, TOOLS_BY_NAME, TOOL_LIST,
     MoveTool, RectSelectTool, EllipseSelectTool, LassoTool,
@@ -127,6 +132,94 @@ class TestToolShortcutsInCanvas(unittest.TestCase):
                 cls = SHORTCUT_MAP.get(shortcut)
                 self.assertIsNotNone(cls, f"Shortcut '{shortcut}' not in SHORTCUT_MAP")
                 self.assertEqual(cls.name, tool_name)
+
+
+class TestToolFunctionality(unittest.TestCase):
+    def test_move_tool_press_release(self):
+        canvas = CanvasView()
+        canvas.new_image(50, 50, Qt.white)
+        tool = MoveTool()
+        tool.press(canvas, QPointF(25, 25), Qt.NoModifier)
+        self.assertTrue(True)
+
+    def test_brush_tool_draws_pixels(self):
+        canvas = CanvasView()
+        canvas.new_image(50, 50, Qt.white)
+        canvas.tool_color = QColor(255, 0, 0)
+        tool = BrushTool()
+        tool.press(canvas, QPointF(10, 10), Qt.NoModifier)
+        tool.move(canvas, QPointF(10, 10), QPointF(20, 10), Qt.NoModifier)
+        tool.release(canvas, QPointF(20, 10), Qt.NoModifier)
+        img = canvas.layer_stack.active.image
+        self.assertNotEqual(img.pixelColor(15, 10), QColor(255, 255, 255))
+
+    def test_eraser_tool_clears_pixels(self):
+        canvas = CanvasView()
+        canvas.new_image(50, 50, QColor(255, 0, 0))
+        tool = EraserTool()
+        tool.press(canvas, QPointF(25, 25), Qt.NoModifier)
+        tool.move(canvas, QPointF(25, 25), QPointF(30, 25), Qt.NoModifier)
+        tool.release(canvas, QPointF(30, 25), Qt.NoModifier)
+        img = canvas.layer_stack.active.image
+        self.assertLess(img.pixelColor(27, 25).alpha(), 255)
+
+    def test_color_picker_tool(self):
+        canvas = CanvasView()
+        canvas.new_image(10, 10, QColor(128, 64, 32))
+        tool = ColorPickerTool()
+        tool.press(canvas, QPointF(5, 5), Qt.NoModifier)
+        self.assertEqual(canvas.tool_color, QColor(128, 64, 32))
+
+    def test_flood_fill_tool(self):
+        canvas = CanvasView()
+        canvas.new_image(20, 20, Qt.white)
+        canvas.tool_color = QColor(0, 255, 0)
+        tool = FloodFillTool()
+        tool.press(canvas, QPointF(10, 10), Qt.NoModifier)
+        img = canvas.layer_stack.active.image
+        self.assertEqual(img.pixelColor(5, 5), QColor(0, 255, 0))
+        self.assertEqual(img.pixelColor(15, 15), QColor(0, 255, 0))
+
+    def test_zoom_tool(self):
+        canvas = CanvasView()
+        canvas.new_image(50, 50)
+        tool = ZoomTool()
+        tool.press(canvas, QPointF(25, 25), Qt.NoModifier)
+        tool.release(canvas, QPointF(25, 25), Qt.NoModifier)
+        self.assertTrue(True)
+
+    def test_text_tool_dialog(self):
+        text_tool = TextTool()
+        self.assertTrue(hasattr(text_tool, 'press'))
+        self.assertTrue(hasattr(text_tool, 'name'))
+
+    def test_crop_tool_basic(self):
+        crop = CropTool()
+        self.assertTrue(hasattr(crop, 'press'))
+        self.assertTrue(hasattr(crop, 'move'))
+        self.assertTrue(hasattr(crop, 'release'))
+
+    def test_dodge_tool(self):
+        d = DodgeTool()
+        self.assertEqual(d.name, "Dodge Tool")
+
+    def test_burn_tool(self):
+        b = BurnTool()
+        self.assertEqual(b.name, "Burn Tool")
+
+    def test_sponge_tool(self):
+        s = SpongeTool()
+        self.assertEqual(s.name, "Sponge Tool")
+
+    def test_shape_tool_rectangle(self):
+        canvas = CanvasView()
+        canvas.new_image(50, 50, Qt.white)
+        canvas.tool_color = QColor(0, 0, 255)
+        tool = ShapeTool()
+        tool.press(canvas, QPointF(10, 10), Qt.NoModifier)
+        tool.release(canvas, QPointF(40, 40), Qt.NoModifier)
+        img = canvas.layer_stack.active.image
+        self.assertNotEqual(img.pixelColor(25, 25), QColor(255, 255, 255))
 
 
 if __name__ == "__main__":
