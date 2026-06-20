@@ -1,9 +1,6 @@
 import sys
-import os
-import subprocess
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QFrame, QGridLayout, QSpacerItem, QSizePolicy
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QFont, QIcon, QPixmap, QPainter, QColor, QBrush
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QFrame
+from PyQt5.QtCore import Qt
 
 from reverseaffinity import __version__
 from reverseaffinity.shared.resources import apply_dark_theme
@@ -17,7 +14,8 @@ APP_CARDS = [
         "desc": _("Image editing & compositing"),
         "icon": "\U0001F4F7",
         "module": "reverseaffinity.photo",
-        "entry_script": "reverseaffinity_photo.py",
+        "window_cls": None,
+        "title": _("reverseaffinity Photo - [Untitled]"),
     },
     {
         "id": "video",
@@ -25,7 +23,8 @@ APP_CARDS = [
         "desc": _("Video editing & timeline"),
         "icon": "\U0001F3AC",
         "module": "reverseaffinity.video",
-        "entry_script": "reverseaffinity_video.py",
+        "window_cls": None,
+        "title": _("reverseaffinity Video - [Untitled]"),
     },
     {
         "id": "effects",
@@ -33,7 +32,8 @@ APP_CARDS = [
         "desc": _("Motion graphics & compositing"),
         "icon": "\U0001F3A8",
         "module": "reverseaffinity.effects",
-        "entry_script": "reverseaffinity_effects.py",
+        "window_cls": None,
+        "title": _("reverseaffinity Effects - [Untitled Composition]"),
     },
 ]
 
@@ -97,6 +97,7 @@ class HomeWindow(QMainWindow):
         screen = QApplication.primaryScreen().availableSize()
         self.resize(int(screen.width() * 0.5), int(screen.height() * 0.55))
         self.setMinimumSize(700, 450)
+        self._sub_windows = []
         apply_dark_theme(self)
 
         central = QWidget()
@@ -135,12 +136,19 @@ class HomeWindow(QMainWindow):
         self.setCentralWidget(central)
 
     def open_app(self, app_info):
-        entry = app_info["entry_script"]
-        script_path = os.path.join(os.path.dirname(__file__), "..", entry)
-        if os.path.exists(script_path):
-            subprocess.Popen([sys.executable, script_path])
+        app_id = app_info["id"]
+        if app_id == "photo":
+            from editor.app_ui import MainWindow as Cls
+        elif app_id == "video":
+            from reverseaffinity.video.video_app import VideoMainWindow as Cls
+        elif app_id == "effects":
+            from reverseaffinity.effects.effects_app import EffectsMainWindow as Cls
         else:
-            subprocess.Popen([sys.executable, "-m", app_info["module"]])
+            return
+        win = Cls()
+        win.setWindowTitle(app_info["title"])
+        self._sub_windows.append(win)
+        win.show()
 
 
 def main():

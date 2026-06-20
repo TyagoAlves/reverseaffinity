@@ -1,3 +1,3 @@
-from reverseaffinity.photo.app_ui import main as run_photo
+from editor.app_ui import MainWindow, main as run_photo
 
-__all__ = ["run_photo"]
+__all__ = ["MainWindow", "run_photo"]
