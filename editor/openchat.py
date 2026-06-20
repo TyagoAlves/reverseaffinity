@@ -225,7 +225,7 @@ class AIChatPanel(QWidget):
                 padding: 6px 10px;
                 font-size: 13px;
             }
-        `")
+        """)
         self.input.returnPressed.connect(self._send)
         input_row.addWidget(self.input, 1)
         self.send_btn = QPushButton("Send")
