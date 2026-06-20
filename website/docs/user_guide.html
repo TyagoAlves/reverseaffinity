@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guia do Usuário — reverseaffinite Photo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: { gray: { 950: '#080c16' } },
+        },
+      },
+    };
+  </script>
+  <style>
+    .gradient-text { background: linear-gradient(135deg, #7c3aed, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { border-color: rgba(124,58,237,0.3); transform: translateY(-2px); }
+    .prose { max-width: 65ch; color: #d1d5db; line-height: 1.75; }
+    .prose h1 { color: #f3f4f6; font-size: 2.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; }
+    .prose h2 { color: #c4b5fd; font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.5rem; }
+    .prose h3 { color: #e2e8f0; font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .prose p { margin-bottom: 1rem; }
+    .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+    .prose li { margin-bottom: 0.25rem; }
+    .prose code { background: #1e293b; color: #22d3ee; padding: 0.125rem 0.375rem; border-radius: 4px; font-size: 0.875rem; }
+    .prose pre { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 1rem; overflow-x: auto; margin-bottom: 1rem; font-size: 0.875rem; }
+    .prose pre code { background: none; padding: 0; }
+    .prose strong { color: #f3f4f6; }
+    .prose a { color: #a78bfa; text-decoration: underline; }
+    .prose a:hover { color: #c4b5fd; }
+    .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    .prose th, .prose td { border: 1px solid #1e293b; padding: 0.5rem 0.75rem; text-align: left; }
+    .prose th { background: #1e293b; color: #e2e8f0; font-weight: 600; }
+    .prose td { color: #d1d5db; }
+    .prose hr { border-color: #1e293b; margin: 2rem 0; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="bg-[#080c16] text-gray-100 font-sans antialiased">
+
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-[#080c16]/80 backdrop-blur-xl border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <a href="../" class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">RA</span>
+          <span class="font-bold text-lg">reverse<span class="text-violet-400">affinite</span></span>
+        </a>
+        <div class="flex items-center gap-6 text-sm">
+          <a href="../" class="text-gray-400 hover:text-white transition">Início</a>
+          <a href="../#docs" class="text-gray-400 hover:text-white transition">Docs</a>
+          <a href="https://github.com/TyagoAlves/reverseaffinite" target="_blank" class="text-gray-400 hover:text-white transition">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+    <a href="../#docs" class="text-violet-400 text-sm hover:text-violet-300 transition mb-8 inline-block">&larr; Voltar</a>
+    <div class="prose">
+
+<h1>reverseaffinite Photo — Guia do Usuário</h1>
+
+<blockquote><strong>A melhor edição de imagens para Linux — construída do zero.</strong><br>
+Inspirado por Affinity Photo, Adobe Photoshop e DaVinci Resolve.</blockquote>
+
+<hr>
+
+<h2>Sumário</h2>
+
+<ol>
+<li><a href="#introducao">Introdução</a></li>
+<li><a href="#inicio-rapido">Início Rápido</a></li>
+<li><a href="#tour-da-interface">Tour da Interface</a></li>
+<li><a href="#ferramentas">Referência de Ferramentas</a></li>
+<li><a href="#camadas">Sistema de Camadas</a></li>
+<li><a href="#selecoes">Guia de Seleções</a></li>
+<li><a href="#filtros">Filtros e Ajustes</a></li>
+<li><a href="#atalhos">Atalhos de Teclado</a></li>
+</ol>
+
+<hr>
+
+<h2 id="introducao">1. Introdução</h2>
+
+<p><strong>reverseaffinite Photo</strong> é um editor de imagens profissional desenvolvido em Python com PyQt5, combinando a produtividade do Affinity Photo, o poder do Adobe Photoshop e a fluência do DaVinci Resolve em uma experiência nativa para Linux.</p>
+
+<h3>Principais características</h3>
+
+<ul>
+<li><strong>15+ ferramentas</strong> com atalhos profissionais de teclado</li>
+<li><strong>Camadas</strong> com 12 modos de mesclagem, opacidade e máscaras</li>
+<li><strong>Seleções</strong> retangular, elíptica, laço e varinha mágica</li>
+<li><strong>Galeria de filtros</strong> com blur, sharpen, detecção de bordas e mais</li>
+<li><strong>Camadas de ajuste</strong> não-destrutivas (Brilho/Contraste, HSL, Níveis)</li>
+<li><strong>Ferramenta Caneta</strong> com curvas Bezier e handles de controle</li>
+<li><strong>Pincel de cura</strong> com casamento automático de cor</li>
+<li><strong>Gradientes</strong> com editor visual completo</li>
+<li><strong>Guias, régua e snapping</strong> para layout de precisão</li>
+<li><strong>Undo/Redo</strong> de 100 níveis com painel de histórico visual</li>
+<li><strong>Modo escuro</strong> profissional incluso</li>
+</ul>
+
+<h2 id="inicio-rapido">2. Início Rápido</h2>
+
+<h3>Requisitos</h3>
+<ul>
+<li>Python 3.8+</li>
+<li>PyQt5 5.15+</li>
+<li>NumPy</li>
+</ul>
+
+<h3>Instalação</h3>
+<pre><code>git clone https://github.com/TyagoAlves/reverseaffinite.git
+cd reverseaffinite
+pip install PyQt5 numpy
+python3 main.py</code></pre>
+
+<p>Ao iniciar, uma janela será aberta com uma tela em branco (800×600). A interface segue o layout profissional: paleta de ferramentas à esquerda, canvas ao centro e painéis à direita.</p>
+
+<h2 id="tour-da-interface">3. Tour da Interface</h2>
+
+<p>A interface é dividida em quatro áreas principais:</p>
+
+<ul>
+<li><strong>Barra de Menu (topo):</strong> File, Edit, Image, Layer, Filter, View, Help</li>
+<li><strong>Paleta de Ferramentas (esquerda):</strong> 15+ ferramentas com atalho de tecla única</li>
+<li><strong>Canvas (centro):</strong> Área de edição principal com zoom e pan</li>
+<li><strong>Painéis (direita):</strong> Color, Layers, Navigator, History</li>
+</ul>
+
+<h2 id="ferramentas">4. Referência de Ferramentas</h2>
+
+<table>
+<tr><th>Tecla</th><th>Ferramenta</th><th>Descrição</th></tr>
+<tr><td><code>V</code></td><td>Move</td><td>Move camadas e seleções</td></tr>
+<tr><td><code>M</code></td><td>Rect Select</td><td>Seleção retangular</td></tr>
+<tr><td><code>E</code></td><td>Ellipse Select</td><td>Seleção elíptica</td></tr>
+<tr><td><code>L</code></td><td>Lasso</td><td>Seleção à mão livre</td></tr>
+<tr><td><code>W</code></td><td>Magic Wand</td><td>Seleção por cor</td></tr>
+<tr><td><code>B</code></td><td>Brush</td><td>Pincel com tamanho e opacidade</td></tr>
+<tr><td><code>E</code></td><td>Eraser</td><td>Borracha</td></tr>
+<tr><td><code>P</code></td><td>Pen</td><td>Caneta Bezier com curvas cúbicas</td></tr>
+<tr><td><code>G</code></td><td>Gradient</td><td>Ferramenta gradiente</td></tr>
+<tr><td><code>S</code></td><td>Shape</td><td>Formas geométricas</td></tr>
+<tr><td><code>T</code></td><td>Text</td><td>Ferramenta texto</td></tr>
+<tr><td><code>C</code></td><td>Clone Stamp</td><td>Clone de pixels</td></tr>
+<tr><td><code>H</code></td><td>Healing Brush</td><td>Pincel de cura</td></tr>
+<tr><td><code>O</code></td><td>Crop</td><td>Cortar imagem</td></tr>
+<tr><td><code>I</code></td><td>Color Picker</td><td>Selecionar cor do canvas</td></tr>
+<tr><td><code>Z</code></td><td>Zoom</td><td>Zoom in/out</td></tr>
+</table>
+
+<h2 id="camadas">5. Sistema de Camadas</h2>
+
+<p>O sistema de camadas do reverseaffinite oferece:</p>
+
+<ul>
+<li>Adicionar/remover/renomear camadas</li>
+<li>12 modos de mesclagem: Normal, Multiply, Screen, Overlay, Darken, Lighten, Color Dodge, Color Burn, Hard Light, Soft Light, Difference, Exclusion</li>
+<li>Opacidade ajustável (0–100%)</li>
+<li>Visibilidade on/off</li>
+<li>Máscaras de camada</li>
+<li>Grupos de camadas</li>
+<li>Camadas de ajuste não-destrutivas</li>
+<li>Duplicar e mesclar camadas</li>
+<li>Batch export de camadas individuais</li>
+</ul>
+
+<h2 id="selecoes">6. Guia de Seleções</h2>
+
+<p>As ferramentas de seleção seguem o padrão da indústria:</p>
+
+<ul>
+<li><strong>Rect Select / Ellipse Select:</strong> Arraste para criar. Segure Shift para círculo/quadrado perfeito.</li>
+<li><strong>Lasso:</strong> Clique e arraste para seleção à mão livre.</li>
+<li><strong>Magic Wand:</strong> Clique em uma área para selecionar pixels similares. Ajuste a tolerância na barra de opções.</li>
+</ul>
+
+<p>Modos de interação:</p>
+<ul>
+<li><strong>Nova seleção:</strong> clica e arrasta normalmente</li>
+<li><strong>Adicionar:</strong> segura Shift enquanto seleciona</li>
+<li><strong>Subtrair:</strong> segura Alt enquanto seleciona</li>
+</ul>
+
+<h2 id="filtros">7. Filtros e Ajustes</h2>
+
+<h3>Galeria de Filtros</h3>
+<p>Acessível pelo menu <em>Filter → Filter Gallery</em> ou <code>Ctrl+F</code>:</p>
+<ul>
+<li><strong>Blur:</strong> Desfoque gaussiano</li>
+<li><strong>Sharpen:</strong> Nitidez</li>
+<li><strong>Edge Detect:</strong> Detecção de bordas</li>
+<li><strong>Pixelate:</strong> Pixelização</li>
+<li><strong>Posterize:</strong> Posterização</li>
+<li><strong>Grayscale:</strong> Escala de cinza</li>
+<li><strong>Invert:</strong> Inverter cores</li>
+<li><strong>Sepia:</strong> Tom sépia</li>
+</ul>
+
+<h3>Camadas de Ajuste</h3>
+<p>Acessível pelo menu <em>Layer → New Adjustment Layer</em>:</p>
+<ul>
+<li><strong>Brilho/Contraste:</strong> Ajuste de luminosidade e contraste</li>
+<li><strong>HSL:</strong> Matiz, saturação e luminosidade</li>
+<li><strong>Níveis:</strong> Controle de tons escuros, médios e claros</li>
+</ul>
+
+<h2 id="atalhos">8. Atalhos de Teclado</h2>
+
+<table>
+<tr><th>Atalho</th><th>Ação</th></tr>
+<tr><td><code>Ctrl+Z</code></td><td>Undo</td></tr>
+<tr><td><code>Ctrl+Shift+Z</code></td><td>Redo</td></tr>
+<tr><td><code>Ctrl+N</code></td><td>Novo documento</td></tr>
+<tr><td><code>Ctrl+O</code></td><td>Abrir imagem</td></tr>
+<tr><td><code>Ctrl+S</code></td><td>Salvar</td></tr>
+<tr><td><code>Ctrl+Shift+S</code></td><td>Salvar como</td></tr>
+<tr><td><code>Ctrl++</code></td><td>Zoom in</td></tr>
+<tr><td><code>Ctrl+-</code></td><td>Zoom out</td></tr>
+<tr><td><code>Ctrl+0</code></td><td>Ajustar à tela</td></tr>
+<tr><td><code>Ctrl+F</code></td><td>Galeria de filtros</td></tr>
+<tr><td><code>Ctrl+;</code></td><td>Toggle Snap</td></tr>
+<tr><td><code>Ctrl+Shift+G</code></td><td>Nova guia</td></tr>
+<tr><td><code>Ctrl+Q</code></td><td>Sair</td></tr>
+<tr><td><code>Space</code> (arrastar)</td><td>Pan no canvas</td></tr>
+<tr><td><code>[</code> / <code>]</code></td><td>Diminuir/aumentar tamanho do pincel</td></tr>
+</table>
+
+<p>Veja a página <a href="shortcuts.html">Atalhos de Teclado</a> para a referência completa.</p>
+
+<hr>
+
+<p><em>Documentação gerada a partir do repositório reverseaffinite.</em></p>
+
+    </div>
+  </div>
+
+  <footer class="border-t border-gray-800 py-8">
+    <div class="max-w-4xl mx-auto px-4 text-center text-gray-600 text-sm">
+      reverseaffinite Photo &mdash; MIT License
+    </div>
+  </footer>
+
+</body>
+</html>

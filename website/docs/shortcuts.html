@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atalhos de Teclado — reverseaffinite Photo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: { gray: { 950: '#080c16' } },
+        },
+      },
+    };
+  </script>
+  <style>
+    .gradient-text { background: linear-gradient(135deg, #7c3aed, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { border-color: rgba(124,58,237,0.3); transform: translateY(-2px); }
+    .prose { max-width: 65ch; color: #d1d5db; line-height: 1.75; }
+    .prose h1 { color: #f3f4f6; font-size: 2.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; }
+    .prose h2 { color: #c4b5fd; font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.5rem; }
+    .prose h3 { color: #e2e8f0; font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .prose p { margin-bottom: 1rem; }
+    .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+    .prose li { margin-bottom: 0.25rem; }
+    .prose code { background: #1e293b; color: #22d3ee; padding: 0.125rem 0.375rem; border-radius: 4px; font-size: 0.875rem; }
+    .prose pre { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 1rem; overflow-x: auto; margin-bottom: 1rem; font-size: 0.875rem; }
+    .prose pre code { background: none; padding: 0; }
+    .prose strong { color: #f3f4f6; }
+    .prose a { color: #a78bfa; text-decoration: underline; }
+    .prose a:hover { color: #c4b5fd; }
+    .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    .prose th, .prose td { border: 1px solid #1e293b; padding: 0.5rem 0.75rem; text-align: left; }
+    .prose th { background: #1e293b; color: #e2e8f0; font-weight: 600; }
+    .prose td { color: #d1d5db; }
+    .prose hr { border-color: #1e293b; margin: 2rem 0; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="bg-[#080c16] text-gray-100 font-sans antialiased">
+
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-[#080c16]/80 backdrop-blur-xl border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <a href="../" class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">RA</span>
+          <span class="font-bold text-lg">reverse<span class="text-violet-400">affinite</span></span>
+        </a>
+        <div class="flex items-center gap-6 text-sm">
+          <a href="../" class="text-gray-400 hover:text-white transition">Início</a>
+          <a href="../#docs" class="text-gray-400 hover:text-white transition">Docs</a>
+          <a href="https://github.com/TyagoAlves/reverseaffinite" target="_blank" class="text-gray-400 hover:text-white transition">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+    <a href="../#docs" class="text-violet-400 text-sm hover:text-violet-300 transition mb-8 inline-block">&larr; Voltar</a>
+    <div class="prose">
+
+<h1>reverseaffinite Photo — Atalhos de Teclado</h1>
+
+<p>Referência completa de atalhos de teclado, organizada por categoria.</p>
+
+<hr>
+
+<h2>File Operations (Operações de Arquivo)</h2>
+
+<table>
+<tr><th>Atalho</th><th>Ação</th></tr>
+<tr><td><code>Ctrl+N</code></td><td>Novo documento (New)</td></tr>
+<tr><td><code>Ctrl+O</code></td><td>Abrir imagem (Open)</td></tr>
+<tr><td><code>Ctrl+S</code></td><td>Salvar (Save)</td></tr>
+<tr><td><code>Ctrl+Shift+S</code></td><td>Salvar como (Save As)</td></tr>
+<tr><td><code>Ctrl+Q</code></td><td>Fechar aplicação (Quit)</td></tr>
+</table>
+
+<h2>Edit (Editar)</h2>
+
+<table>
+<tr><th>Atalho</th><th>Ação</th></tr>
+<tr><td><code>Ctrl+Z</code></td><td>Desfazer (Undo)</td></tr>
+<tr><td><code>Ctrl+Shift+Z</code></td><td>Refazer (Redo)</td></tr>
+<tr><td><code>Ctrl+C</code></td><td>Copiar (Copy)</td></tr>
+<tr><td><code>Ctrl+V</code></td><td>Colar (Paste)</td></tr>
+</table>
+
+<h2>View (Visualização)</h2>
+
+<table>
+<tr><th>Atalho</th><th>Ação</th></tr>
+<tr><td><code>Ctrl++</code></td><td>Zoom In</td></tr>
+<tr><td><code>Ctrl+-</code></td><td>Zoom Out</td></tr>
+<tr><td><code>Ctrl+0</code></td><td>Zoom para ajustar (Fit to Screen)</td></tr>
+<tr><td><code>Ctrl+1</code></td><td>Zoom 100%</td></tr>
+</table>
+
+<h2>Tools (Ferramentas)</h2>
+
+<h3>Seleção</h3>
+
+<table>
+<tr><th>Atalho</th><th>Ferramenta</th></tr>
+<tr><td><code>V</code></td><td>Move Tool (Mover)</td></tr>
+<tr><td><code>M</code></td><td>Rectangular / Elliptical Select</td></tr>
+<tr><td><code>L</code></td><td>Lasso Tool (Laço)</td></tr>
+<tr><td><code>W</code></td><td>Magic Wand (Varinha Mágica)</td></tr>
+</table>
+
+<h3>Desenho</h3>
+
+<table>
+<tr><th>Atalho</th><th>Ferramenta</th></tr>
+<tr><td><code>B</code></td><td>Brush Tool (Pincel)</td></tr>
+<tr><td><code>N</code></td><td>Pencil Tool (Lápis)</td></tr>
+<tr><td><code>P</code></td><td>Pen Tool (Caneta / Bezier)</td></tr>
+<tr><td><code>E</code></td><td>Eraser Tool (Borracha)</td></tr>
+<tr><td><code>G</code></td><td>Gradient Tool (Gradiente)</td></tr>
+<tr><td><code>U</code></td><td>Shape Tool (Forma)</td></tr>
+</table>
+
+<h3>Texto</h3>
+
+<table>
+<tr><th>Atalho</th><th>Ferramenta</th></tr>
+<tr><td><code>T</code></td><td>Text Tool (Texto)</td></tr>
+</table>
+
+<h3>Retoque</h3>
+
+<table>
+<tr><th>Atalho</th><th>Ferramenta</th></tr>
+<tr><td><code>S</code></td><td>Clone Stamp (Carimbo)</td></tr>
+<tr><td><code>J</code></td><td>Healing Brush (Pincel de Cura)</td></tr>
+</table>
+
+<h3>Corte</h3>
+
+<table>
+<tr><th>Atalho</th><th>Ferramenta</th></tr>
+<tr><td><code>C</code></td><td>Crop Tool (Corte)</td></tr>
+</table>
+
+<h3>Cor</h3>
+
+<table>
+<tr><th>Atalho</th><th>Ferramenta</th></tr>
+<tr><td><code>I</code></td><td>Color Picker (Conta Gotas)</td></tr>
+<tr><td><code>K</code></td><td>Flood Fill (Balde de Tinta)</td></tr>
+</table>
+
+<h3>Visualização</h3>
+
+<table>
+<tr><th>Atalho</th><th>Ferramenta</th></tr>
+<tr><td><code>H</code></td><td>Hand Tool (Mão / Pan)</td></tr>
+<tr><td><code>Z</code></td><td>Zoom Tool</td></tr>
+</table>
+
+<h2>Layer (Camadas)</h2>
+
+<table>
+<tr><th>Atalho</th><th>Ação</th></tr>
+<tr><td><code>Ctrl+Shift+N</code></td><td>Nova camada (New Layer)</td></tr>
+</table>
+
+<h2>Brush Size (Tamanho do Pincel)</h2>
+
+<table>
+<tr><th>Atalho</th><th>Ação</th></tr>
+<tr><td><code>[</code></td><td>Diminuir tamanho do pincel</td></tr>
+<tr><td><code>]</code></td><td>Aumentar tamanho do pincel</td></tr>
+</table>
+
+<h2>Special Keys (Teclas Especiais)</h2>
+
+<table>
+<tr><th>Tecla</th><th>Ação</th></tr>
+<tr><td><code>Enter</code> / <code>Return</code></td><td>Finalizar path (Pen) / Aplicar corte (Crop)</td></tr>
+<tr><td><code>Esc</code></td><td>Cancelar path (Pen) / Cancelar corte (Crop)</td></tr>
+<tr><td><code>Alt</code> + clique</td><td>Definir origem (Clone Stamp / Healing Brush)</td></tr>
+</table>
+
+<hr>
+
+<p>© 2026 reverseaffinite.</p>
+
+    </div>
+  </div>
+
+  <footer class="border-t border-gray-800 py-8">
+    <div class="max-w-4xl mx-auto px-4 text-center text-gray-600 text-sm">
+      reverseaffinite Photo &mdash; MIT License
+    </div>
+  </footer>
+
+</body>
+</html>
