@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentação — reverseaffinite Photo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: { gray: { 950: '#0a0e1a' } },
+        },
+      },
+    };
+  </script>
+  <style>
+    .gradient-text { background: linear-gradient(135deg, #f97316, #fb923c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .gradient-cyan { background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .doc-section { scroll-margin-top: 6rem; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    .code-block { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; line-height: 1.7; overflow-x: auto; }
+    .code-block .prompt { color: #22d3ee; }
+    .code-block .cmd { color: #e2e8f0; }
+    .code-block .output { color: #64748b; }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="bg-[#0a0e1a] text-gray-100 font-sans antialiased">
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0a0e1a]/80 backdrop-blur-xl border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <a href="/reverseaffinite/" class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">RA</span>
+          <span class="font-bold text-lg">reverse<span class="text-orange-400">affinite</span></span>
+        </a>
+        <div class="hidden md:flex items-center gap-6 text-sm">
+          <a href="/reverseaffinite/#features" class="text-gray-400 hover:text-white transition">Recursos</a>
+          <a href="/reverseaffinite/documentation" class="text-orange-400 transition">Documentação</a>
+          <a href="https://github.com/TyagoAlves/reverseaffinite" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-gray-400 hover:text-white transition">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            GitHub
+          </a>
+          <a href="https://github.com/TyagoAlves/reverseaffinite/archive/refs/heads/main.zip" class="bg-gradient-to-r from-orange-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition">Download</a>
+        </div>
+        <button class="md:hidden text-gray-400 hover:text-white" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden border-t border-gray-800 bg-gray-900">
+      <div class="px-4 py-4 space-y-3">
+        <a href="/reverseaffinite/#features" class="block text-gray-400 hover:text-white">Recursos</a>
+        <a href="/reverseaffinite/documentation" class="block text-orange-400">Documentação</a>
+        <a href="https://github.com/TyagoAlves/reverseaffinite" target="_blank" class="block text-gray-400 hover:text-white">GitHub</a>
+        <a href="https://github.com/TyagoAlves/reverseaffinite/archive/refs/heads/main.zip" class="block bg-gradient-to-r from-orange-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold text-center">Download</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="pt-32 pb-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <span class="text-orange-400 text-sm font-semibold uppercase tracking-wider">Documentação</span>
+        <h1 class="text-5xl font-bold mt-3">Documentação <span class="gradient-text">Completa</span></h1>
+        <p class="text-gray-400 text-xl mt-4 max-w-2xl mx-auto">Tudo que você precisa saber para usar o reverseaffinite Photo — ferramentas, camadas, filtros, atalhos e arquitetura.</p>
+      </div>
+
+      <div class="lg:grid lg:grid-cols-4 lg:gap-12">
+        <nav class="lg:col-span-1 mb-12 lg:mb-0">
+          <div class="sticky top-24 space-y-1 text-sm border-l border-gray-800 pl-4">
+            <h4 class="font-semibold text-orange-400 mb-4 text-base">Nesta página</h4>
+            <a href="#quickstart" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Início Rápido</a>
+            <a href="#tools" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Ferramentas</a>
+            <a href="#layers" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Camadas & Mesclagem</a>
+            <a href="#filters" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Filtros & Ajustes</a>
+            <a href="#selections" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Seleções</a>
+            <a href="#pen" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Pen & Paths</a>
+            <a href="#gradient" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Gradiente</a>
+            <a href="#shortcuts" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Atalhos do Teclado</a>
+            <a href="#architecture" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Arquitetura</a>
+            <a href="#engine" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">Engine C++</a>
+            <a href="#faq" class="block text-gray-400 hover:text-white py-1.5 border-l-2 border-transparent hover:border-orange-500 pl-3 transition">FAQ</a>
+          </div>
+        </nav>
+
+        <div class="lg:col-span-3 max-w-none">
+
+          <section id="quickstart" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Início Rápido</h2>
+            <p class="text-gray-400 mt-4">Em 3 passos você tem o reverseaffinite rodando no Linux:</p>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-6">
+              <div class="flex items-center gap-4 mb-4">
+                <span class="w-8 h-8 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-sm">1</span>
+                <div><strong class="text-gray-100">Clone e instale dependências</strong></div>
+              </div>
+              <pre class="bg-gray-950 rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300">git clone https://github.com/TyagoAlves/reverseaffinite.git
+cd reverseaffinite
+pip install PyQt5 numpy</code></pre>
+            </div>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-4">
+              <div class="flex items-center gap-4 mb-4">
+                <span class="w-8 h-8 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-sm">2</span>
+                <div><strong class="text-gray-100">Inicie o editor</strong></div>
+              </div>
+              <pre class="bg-gray-950 rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300">python3 main.py</code></pre>
+              <p class="text-gray-400 text-sm mt-3">A janela do editor abrirá com layout profissional: paleta de ferramentas à esquerda, canvas central, painéis à direita.</p>
+            </div>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-4">
+              <div class="flex items-center gap-4 mb-4">
+                <span class="w-8 h-8 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-sm">3</span>
+                <div><strong class="text-gray-100">Crie ou abra uma imagem</strong></div>
+              </div>
+              <p class="text-gray-400 text-sm"><strong class="text-gray-100">Arquivo &rarr; Novo</strong> (Ctrl+N) para criar uma tela em branco ou <strong class="text-gray-100">Arquivo &rarr; Abrir</strong> (Ctrl+O) para editar uma imagem existente. Formatos suportados: PNG, JPG, BMP, TIFF, GIF.</p>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="tools" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Ferramentas</h2>
+            <p class="text-gray-400 mt-4">O reverseaffinite possui 15+ ferramentas profissionais organizadas na paleta vertical à esquerda. Cada ferramenta tem atalho de tecla única.</p>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-8">
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-orange-400">V</span> Move</h4>
+                <p class="text-sm text-gray-400">Arrasta camadas e seleções pelo canvas. Com Shift mantém proporção. Nós de transformação nos cantos para redimensionar e rotacionar.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-cyan-400">M</span> Seleção Retangular</h4>
+                <p class="text-sm text-gray-400">Desenha seleções retangulares. Com Shift cria quadrados perfeitos.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-orange-400">L</span> Lasso</h4>
+                <p class="text-sm text-gray-400">Seleção à mão livre. Ideal para contornos orgânicos e recortes precisos.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-cyan-400">W</span> Varinha Mágica</h4>
+                <p class="text-sm text-gray-400">Seleciona áreas por similaridade de cor. Tolerância ajustável no painel de opções.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-orange-400">B</span> Brush</h4>
+                <p class="text-sm text-gray-400">Pincel com tamanho, opacidade e flow ajustáveis. Suporta tablet com sensibilidade à pressão.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-cyan-400">E</span> Eraser</h4>
+                <p class="text-sm text-gray-400">Apaga pixels da camada ativa. Em máscaras de camada, revela ou oculta áreas.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-orange-400">P</span> Pen</h4>
+                <p class="text-sm text-gray-400">Curvas Bezier com handles de controle. Adiciona/remove pontos âncora. Cria paths que podem ser convertidos em seleções ou shapes.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-cyan-400">G</span> Gradient</h4>
+                <p class="text-sm text-gray-400">Editor de gradientes com múltiplos stops, tipos (linear, radial, angular, reflected) e cores personalizáveis.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-orange-400">S</span> Shape</h4>
+                <p class="text-sm text-gray-400">Retângulos, elipses, triângulos e polígonos com preenchimento sólido ou gradiente.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-cyan-400">T</span> Text</h4>
+                <p class="text-sm text-gray-400">Texto com fonte, tamanho, cor e alinhamento. Edição inline no canvas.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-orange-400">C</span> Clone Stamp</h4>
+                <p class="text-sm text-gray-400">Clona pixels de uma região para outra. Alt+clique define origem.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-cyan-400">H</span> Healing Brush</h4>
+                <p class="text-sm text-gray-400">Corrige imperfeições combinando textura e iluminação da área de origem com o destino.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-orange-400">O</span> Crop</h4>
+                <p class="text-sm text-gray-400">Corta a imagem para o tamanho desejado. Preview com grade de terços.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-cyan-400">I</span> Color Picker</h4>
+                <p class="text-sm text-gray-400">Seleciona cores do canvas. Define cor de frente e fundo.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2"><span class="text-orange-400">Z</span> Zoom</h4>
+                <p class="text-sm text-gray-400">Aproxima e afasta o canvas. Clique para ampliar, Alt+clique para reduzir.</p>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="layers" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Camadas & Mesclagem</h2>
+            <p class="text-gray-400 mt-4">Sistema completo de camadas com 12 modos de mesclagem, máscaras e grupos.</p>
+
+            <h3 class="text-xl font-semibold mt-10 mb-4">Painel de Camadas</h3>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+              <div class="space-y-3 text-sm text-gray-400">
+                <p><strong class="text-gray-200">Listagem:</strong> Cada camada aparece com thumbnail, nome, visibilidade (olho), opacidade e modo de mesclagem.</p>
+                <p><strong class="text-gray-200">Ordem:</strong> Arraste para reordenar. Camadas no topo aparecem na frente.</p>
+                <p><strong class="text-gray-200">Grupos:</strong> Pastas que agrupam camadas. Aplique opacidade/mesclagem ao grupo inteiro.</p>
+                <p><strong class="text-gray-200">Máscaras:</strong> Adicione máscara de camada. Pinte de preto para ocultar, branco para revelar.</p>
+                <p><strong class="text-gray-200">Lock:</strong> Trave camada para evitar edição acidental.</p>
+              </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mt-10 mb-4">Modos de Mesclagem (Blend Modes)</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Normal</h4>
+                <p class="text-sm text-gray-400">Camada cobre a de baixo. Opacidade controla a transparência.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Multiply</h4>
+                <p class="text-sm text-gray-400">Escurece a imagem combinando cores. Branco não tem efeito.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Screen</h4>
+                <p class="text-sm text-gray-400">Clareia a imagem. Preto não tem efeito.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Overlay</h4>
+                <p class="text-sm text-gray-400">Combina Multiply e Screen. Aumenta contraste.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Darken</h4>
+                <p class="text-sm text-gray-400">Mantém os pixels mais escuros de cada canal.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Lighten</h4>
+                <p class="text-sm text-gray-400">Mantém os pixels mais claros de cada canal.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Difference</h4>
+                <p class="text-sm text-gray-400">Subtrai cores. Preto = sem efeito, branco = inverte.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Add</h4>
+                <p class="text-sm text-gray-400">Soma canais de cor. Cria efeitos de luz e brilho.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Subtract</h4>
+                <p class="text-sm text-gray-400">Subtrai canais de cor. Escurece a imagem.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Dodge</h4>
+                <p class="text-sm text-gray-400">Clareia baseado no tom da camada. Efeito forte.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Burn</h4>
+                <p class="text-sm text-gray-400">Escurece baseado no tom da camada. Efeito forte.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Soft Light</h4>
+                <p class="text-sm text-gray-400">Similar ao Overlay mas mais suave. Bom para texturas.</p>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="filters" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Filtros & Ajustes</h2>
+            <p class="text-gray-400 mt-4">Galeria completa de filtros e camadas de ajuste não-destrutivas.</p>
+
+            <h3 class="text-xl font-semibold mt-10 mb-4">Filtros Destrutivos (Menu Filter)</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Blur</h4>
+                <p class="text-sm text-gray-400">Desfoque gaussiano com raio ajustável. Suaviza pixels.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Sharpen</h4>
+                <p class="text-sm text-gray-400">Aumenta o contraste entre pixels vizinhos. Nitidez.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Edge Detect</h4>
+                <p class="text-sm text-gray-400">Detecta bordas com filtro Sobel. Resultado em preto e branco.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Pixelate</h4>
+                <p class="text-sm text-gray-400">Efeito mosaico com tamanho de bloco ajustável.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Posterize</h4>
+                <p class="text-sm text-gray-400">Reduz número de cores por canal. Efeito cartaz.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Grayscale</h4>
+                <p class="text-sm text-gray-400">Remove saturação. Converte para tons de cinza.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Invert</h4>
+                <p class="text-sm text-gray-400">Inverte todas as cores. Negativo da imagem.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <h4 class="font-semibold text-gray-100 mb-2">Sepia</h4>
+                <p class="text-sm text-gray-400">Tom vintage sépia. Efeito fotografia antiga.</p>
+              </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mt-10 mb-4">Camadas de Ajuste (Não-destrutivas)</h3>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+              <p class="text-sm text-gray-400 mb-4">Camadas de ajuste aplicam modificações na pilha de camadas abaixo sem alterar os pixels originais.</p>
+              <div class="space-y-3 text-sm text-gray-400">
+                <p><span class="text-orange-400">&#9656;</span> <strong class="text-gray-200">Brightness/Contrast:</strong> Ajusta luminosidade e contraste geral.</p>
+                <p><span class="text-orange-400">&#9656;</span> <strong class="text-gray-200">Hue/Saturation:</strong> Matiz, saturação e luminosidade.</p>
+                <p><span class="text-orange-400">&#9656;</span> <strong class="text-gray-200">Levels:</strong> Controle de tons escuros, médios e claros com histograma.</p>
+                <p><span class="text-orange-400">&#9656;</span> <strong class="text-gray-200">Curves:</strong> Curvas de tom com pontos de controle.</p>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="selections" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Seleções</h2>
+            <p class="text-gray-400 mt-4">Sistema completo de seleções com "marching ants", máscaras e modos booleanos.</p>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-6">
+              <h4 class="text-lg font-semibold text-gray-100 mb-3">Tipos de Seleção</h4>
+              <div class="space-y-3 text-sm text-gray-400">
+                <p><strong class="text-gray-200">Retangular (M):</strong> Arraste para criar. Shift = quadrado.</p>
+                <p><strong class="text-gray-200">Elíptica:</strong> Mesmo comportamento da retangular, mas elíptica.</p>
+                <p><strong class="text-gray-200">Lasso (L):</strong> Desenho livre. Solte o mouse para fechar a seleção.</p>
+                <p><strong class="text-gray-200">Varinha (W):</strong> Clique em uma área. Tolerância no painel de opções.</p>
+              </div>
+            </div>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-4">
+              <h4 class="text-lg font-semibold text-gray-100 mb-3">Modos Booleanos</h4>
+              <div class="grid md:grid-cols-4 gap-3 text-sm">
+                <div class="bg-gray-950 rounded-lg p-3 text-center"><span class="text-orange-400 font-bold">Nova</span><p class="text-gray-500 text-xs mt-1">Substitui seleção atual</p></div>
+                <div class="bg-gray-950 rounded-lg p-3 text-center"><span class="text-cyan-400 font-bold">Adicionar</span><p class="text-gray-500 text-xs mt-1">Soma à seleção existente</p></div>
+                <div class="bg-gray-950 rounded-lg p-3 text-center"><span class="text-orange-400 font-bold">Subtrair</span><p class="text-gray-500 text-xs mt-1">Remove da seleção</p></div>
+                <div class="bg-gray-950 rounded-lg p-3 text-center"><span class="text-cyan-400 font-bold">Intersectar</span><p class="text-gray-500 text-xs mt-1">Apenas área comum</p></div>
+              </div>
+            </div>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-4">
+              <h4 class="text-lg font-semibold text-gray-100 mb-3">Operações</h4>
+              <div class="space-y-2 text-sm text-gray-400">
+                <p><strong class="text-gray-200">Selecionar Tudo:</strong> Ctrl+A</p>
+                <p><strong class="text-gray-200">Desselecionar:</strong> Ctrl+D</p>
+                <p><strong class="text-gray-200">Inverter Seleção:</strong> Ctrl+Shift+I</p>
+                <p><strong class="text-gray-200">Suavizar Bordas:</strong> Feather no painel de opções antes de criar.</p>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="pen" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Pen & Paths</h2>
+            <p class="text-gray-400 mt-4">Ferramenta Pen com curvas Bezier cúbicas — como no Illustrator ou Affinity Designer.</p>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-6">
+              <h4 class="text-lg font-semibold text-gray-100 mb-3">Como Usar</h4>
+              <div class="space-y-3 text-sm text-gray-400">
+                <p><span class="text-orange-400">1.</span> Selecione a ferramenta Pen (P).</p>
+                <p><span class="text-orange-400">2.</span> Clique no canvas para adicionar pontos âncora.</p>
+                <p><span class="text-orange-400">3.</span> Arraste ao clicar para criar handles de curva (Bezier).</p>
+                <p><span class="text-orange-400">4.</span> Clique no primeiro ponto para fechar o path.</p>
+                <p><span class="text-orange-400">5.</span> Clique com botão direito em um ponto para removê-lo.</p>
+              </div>
+            </div>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-4">
+              <h4 class="text-lg font-semibold text-gray-100 mb-3">Ações</h4>
+              <div class="space-y-2 text-sm text-gray-400">
+                <p><strong class="text-gray-200">Converter em Seleção:</strong> Botão direito &rarr; "To Selection" ou Ctrl+Enter.</p>
+                <p><strong class="text-gray-200">Preencher Path:</strong> Preenche com a cor de frente.</p>
+                <p><strong class="text-gray-200">Contornar Path:</strong> Desenha traçado com o brush atual.</p>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="gradient" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Editor de Gradientes</h2>
+            <p class="text-gray-400 mt-4">Editor profissional com múltiplos stops, tipos de gradiente e cores personalizáveis.</p>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-6">
+              <h4 class="text-lg font-semibold text-gray-100 mb-3">Tipos de Gradiente</h4>
+              <div class="grid md:grid-cols-4 gap-3 text-sm">
+                <div class="bg-gray-950 border border-gray-800 rounded-lg p-3 text-center"><span class="text-orange-400 font-bold">Linear</span><p class="text-gray-500 text-xs mt-1">Transição em linha reta</p></div>
+                <div class="bg-gray-950 border border-gray-800 rounded-lg p-3 text-center"><span class="text-cyan-400 font-bold">Radial</span><p class="text-gray-500 text-xs mt-1">Círculo concêntrico</p></div>
+                <div class="bg-gray-950 border border-gray-800 rounded-lg p-3 text-center"><span class="text-orange-400 font-bold">Angular</span><p class="text-gray-500 text-xs mt-1">360 graus</p></div>
+                <div class="bg-gray-950 border border-gray-800 rounded-lg p-3 text-center"><span class="text-cyan-400 font-bold">Reflected</span><p class="text-gray-500 text-xs mt-1">Espelhado</p></div>
+              </div>
+            </div>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-4">
+              <h4 class="text-lg font-semibold text-gray-100 mb-3">Controles</h4>
+              <div class="space-y-2 text-sm text-gray-400">
+                <p><span class="text-orange-400">&#9656;</span> Adicione stops clicando na barra de gradiente.</p>
+                <p><span class="text-orange-400">&#9656;</span> Arraste stops para reposicionar.</p>
+                <p><span class="text-orange-400">&#9656;</span> Clique duas vezes em um stop para escolher cor.</p>
+                <p><span class="text-orange-400">&#9656;</span> Arraste para cima/para fora para remover um stop.</p>
+                <p><span class="text-orange-400">&#9656;</span> Controle de suavidade entre stops (midpoint).</p>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="shortcuts" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Atalhos do Teclado</h2>
+            <p class="text-gray-400 mt-4">Atalhos profissionais como no Photoshop e Affinity Photo.</p>
+
+            <h3 class="text-xl font-semibold mt-10 mb-4">Ferramentas</h3>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 overflow-x-auto">
+              <table class="w-full text-sm text-gray-300">
+                <thead><tr class="border-b border-gray-700 text-left"><th class="pb-3 text-gray-500 font-medium">Tecla</th><th class="pb-3 text-gray-500 font-medium">Ferramenta</th></tr></thead>
+                <tbody>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-orange-400">V</code></td><td class="py-3">Move</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-cyan-400">M</code></td><td class="py-3">Seleção Retangular</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-orange-400">L</code></td><td class="py-3">Lasso</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-cyan-400">W</code></td><td class="py-3">Varinha Mágica</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-orange-400">B</code></td><td class="py-3">Brush</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-cyan-400">E</code></td><td class="py-3">Eraser</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-orange-400">P</code></td><td class="py-3">Pen</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-cyan-400">G</code></td><td class="py-3">Gradient</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-orange-400">S</code></td><td class="py-3">Shape</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-cyan-400">T</code></td><td class="py-3">Text</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-orange-400">C</code></td><td class="py-3">Clone Stamp</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-cyan-400">H</code></td><td class="py-3">Healing Brush</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-orange-400">O</code></td><td class="py-3">Crop</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-cyan-400">I</code></td><td class="py-3">Color Picker</td></tr>
+                  <tr><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-orange-400">Z</code></td><td class="py-3">Zoom</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3 class="text-xl font-semibold mt-10 mb-4">Comandos Gerais</h3>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 overflow-x-auto">
+              <table class="w-full text-sm text-gray-300">
+                <thead><tr class="border-b border-gray-700 text-left"><th class="pb-3 text-gray-500 font-medium">Atalho</th><th class="pb-3 text-gray-500 font-medium">Ação</th></tr></thead>
+                <tbody>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+N</code></td><td class="py-3">Novo documento</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+O</code></td><td class="py-3">Abrir imagem</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+S</code></td><td class="py-3">Salvar</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+Shift+S</code></td><td class="py-3">Salvar como</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+Z</code></td><td class="py-3">Desfazer</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+Shift+Z</code></td><td class="py-3">Refazer</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+A</code></td><td class="py-3">Selecionar tudo</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+D</code></td><td class="py-3">Desselecionar</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+Shift+I</code></td><td class="py-3">Inverter seleção</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+E</code></td><td class="py-3">Merge visible layers</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">Ctrl+J</code></td><td class="py-3">Duplicar camada</td></tr>
+                  <tr class="border-b border-gray-800"><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">[</code></td><td class="py-3">Diminuir brush size</td></tr>
+                  <tr><td class="py-3"><code class="bg-gray-800 px-2 py-0.5 rounded text-xs">]</code></td><td class="py-3">Aumentar brush size</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="architecture" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Arquitetura do Projeto</h2>
+            <p class="text-gray-400 mt-4">O reverseaffinite é dividido em módulos Python organizados e um motor C++ para renderização pesada.</p>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-6">
+              <h4 class="text-lg font-semibold text-gray-100 mb-3">Estrutura de Diretórios</h4>
+              <pre class="bg-gray-950 rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300">reverseaffinite/
+├── main.py                    # Ponto de entrada
+├── editor/
+│   ├── __init__.py
+│   ├── app_ui.py              # MainWindow, menus, layout
+│   ├── canvas.py              # CanvasView, renderização
+│   ├── tools/                 # 15+ ferramentas
+│   │   ├── tool_base.py       # Classe base Tool
+│   │   ├── brush_tool.py
+│   │   ├── pen_tool.py
+│   │   ├── gradient_tool.py
+│   │   ├── text_tool.py
+│   │   ├── clone_tool.py
+│   │   ├── healing_tool.py
+│   │   ├── crop_tool.py
+│   │   ├── shape_tool.py
+│   │   └── selection_tools.py
+│   ├── layers/
+│   │   ├── layer_manager.py   # Gerenciamento de camadas
+│   │   ├── blend_modes.py     # 12 modos de mesclagem
+│   │   └── layer_groups.py
+│   ├── filters/
+│   │   └── filter_gallery.py
+│   ├── selections/
+│   │   └── selection_manager.py
+│   ├── utils/
+│   │   ├── history.py         # Undo/redo com snapshots
+│   │   ├── color_utils.py
+│   │   └── file_io.py
+│   └── widgets/
+│       ├── gradient_editor.py
+│       ├── color_picker.py
+│       └── tool_options.py
+├── cpp_editor/                # Engine C++ (futura)
+│   ├── CMakeLists.txt
+│   ├── build.sh
+│   └── src/
+├── tests/                     # 136 testes
+│   └── test_*.py
+└── website/                   # Site do produto
+    ├── index.html
+    └── documentation/</code></pre>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="engine" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Engine C++ (Em Desenvolvimento)</h2>
+            <p class="text-gray-400 mt-4">Motor de renderização nativo C++ com Qt5 e OpenGL para performance de produção.</p>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-6">
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-cyan-400 mb-3">&#9889; Pipeline OpenGL</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                  <li>Canvas acelerado por GPU</li>
+                  <li>Zoom e pan suaves (60fps)</li>
+                  <li>Renderização de camadas via shaders</li>
+                  <li>Blend modes em GLSL</li>
+                </ul>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-cyan-400 mb-3">&#9889; SIMD Pixel Ops</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                  <li>Operações SSE2 (128-bit) em pixels RGBA</li>
+                  <li>Blend modes sem分支预测</li>
+                  <li>Fallback escalar para CPUs sem SSE2</li>
+                  <li>Binário otimizado ~104 KB</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-gray-900 border border-cyan-500/20 rounded-xl p-6 mt-4">
+              <h4 class="text-lg font-semibold text-cyan-400 mb-2">Build</h4>
+              <pre class="bg-gray-950 rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300">cd cpp_editor
+chmod +x build.sh
+./build.sh</code></pre>
+              <p class="text-gray-500 text-xs mt-3">Requer Qt5 (download automático via aqtinstall) e CMake.</p>
+            </div>
+          </section>
+
+          <hr class="border-gray-800 my-12">
+
+          <section id="faq" class="doc-section">
+            <h2 class="text-3xl font-bold gradient-text inline-block">Perguntas Frequentes</h2>
+            <p class="text-gray-400 mt-4">As dúvidas mais comuns sobre o reverseaffinite Photo.</p>
+            <div class="space-y-4 mt-6">
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <h4 class="font-semibold text-gray-100">O reverseaffinite funciona no Windows ou macOS?</h4>
+                <p class="text-sm text-gray-400 mt-2">Atualmente o foco é Linux, mas como é Python/PyQt5, funciona em Windows e macOS também com pequenos ajustes.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <h4 class="font-semibold text-gray-100">Preciso de placa de vídeo?</h4>
+                <p class="text-sm text-gray-400 mt-2">Não. O engine Python usa CPU (NumPy). O engine C++ usa OpenGL e se beneficia de GPU, mas tem fallback CPU.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <h4 class="font-semibold text-gray-100">O projeto tem suporte a plugins?</h4>
+                <p class="text-sm text-gray-400 mt-2">Ainda não, mas a arquitetura de ferramentas é extensível por herança da classe base <code class="text-cyan-400">Tool</code>. Futuramente teremos sistema de plugins Python.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <h4 class="font-semibold text-gray-100">Qual a diferença para o GIMP?</h4>
+                <p class="text-sm text-gray-400 mt-2">O reverseaffinite busca o fluxo de trabalho do Affinity Photo / Photoshop — layout profissional com paleta à esquerda, painéis à direita, atalhos de tecla única. É mais leve e focado em usabilidade moderna.</p>
+              </div>
+              <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <h4 class="font-semibold text-gray-100">Posso contribuir?</h4>
+                <p class="text-sm text-gray-400 mt-2">Sim! O projeto é 100% open source (MIT). Faça fork no GitHub, implemente melhorias e abra um Pull Request.</p>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-gray-900 border-t border-gray-800 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <span class="font-bold text-lg">reverse<span class="text-orange-400">affinite</span></span>
+          <p class="text-gray-500 text-sm mt-2">Editor de imagens open source para Linux. Feito com PyQt5 e amor.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-3">Produto</h4>
+          <div class="space-y-2 text-sm text-gray-400">
+            <a href="/reverseaffinite/#features" class="block hover:text-white">Recursos</a>
+            <a href="/reverseaffinite/#install" class="block hover:text-white">Instalar</a>
+            <a href="/reverseaffinite/documentation" class="block hover:text-white">Documentação</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-3">Comunidade</h4>
+          <div class="space-y-2 text-sm text-gray-400">
+            <a href="https://github.com/TyagoAlves/reverseaffinite" target="_blank" class="block hover:text-white">GitHub</a>
+            <a href="https://github.com/TyagoAlves/reverseaffinite/issues" target="_blank" class="block hover:text-white">Reportar Bug</a>
+            <a href="https://github.com/TyagoAlves/reverseaffinite/pulls" target="_blank" class="block hover:text-white">Pull Requests</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-3">Legal</h4>
+          <div class="space-y-2 text-sm text-gray-400">
+            <a href="#" class="block hover:text-white">MIT License</a>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
+        &copy; 2026 reverseaffinite Photo. Inspirado por Affinity Photo e Adobe Photoshop. Nenhum código proprietário foi usado.
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
