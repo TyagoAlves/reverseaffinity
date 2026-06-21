@@ -1,5 +1,5 @@
 import numpy as np
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QFont, QPainter, QOpenGLShader, QOpenGLShaderProgram
 from PyQt5.QtWidgets import QOpenGLWidget
 

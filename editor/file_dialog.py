@@ -1,10 +1,10 @@
 import os
-from PyQt5.QtCore import Qt, QDir
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QComboBox,
-    QFileDialog, QWidget, QAbstractItemView, QApplication
+    QFileDialog, QAbstractItemView
 )
 
 from .i18n import _

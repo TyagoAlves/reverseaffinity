@@ -1,14 +1,12 @@
 import os
-import numpy as np
-from PyQt5.QtCore import Qt, pyqtSignal, QTimer
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QSplitter, QHBoxLayout,
-    QLabel, QPushButton, QFileDialog, QMessageBox, QSizePolicy
+    QPushButton, QFileDialog, QMessageBox, QSizePolicy
 )
-from PyQt5.QtGui import QColor
 
-from .video_engine import VideoProject, Timeline, TransportState, Clip, Track
-from .video_ffmpeg import get_metadata, extract_frame, FrameSequence
+from .video_engine import VideoProject, Clip
+from .video_ffmpeg import get_metadata, FrameSequence
 from .video_glplayer import VideoGLPlayer
 from .timeline_widget import TimelineWidget
 from .transport_bar import TransportBar

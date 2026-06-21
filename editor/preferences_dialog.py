@@ -1,9 +1,8 @@
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QTabWidget, QWidget,
-    QLabel, QSpinBox, QComboBox, QCheckBox, QPushButton,
-    QGroupBox, QGridLayout, QColorDialog, QLineEdit,
+    QSpinBox, QComboBox, QCheckBox, QPushButton,
+    QColorDialog,
     QFormLayout,
 )
 

@@ -1,9 +1,9 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal, QRectF, QPointF, QLineF, QSize
-from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QBrush, QFontMetrics
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QLabel, QPushButton, QFrame, QSizePolicy
-from .video_engine import Timeline, Track, Clip, TransportState, VideoProject
+from PyQt5.QtCore import Qt, pyqtSignal, QSize
+from PyQt5.QtGui import QPainter, QColor, QPen, QFontMetrics
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QLabel, QFrame, QSizePolicy
+from .video_engine import Track, Timeline
 
 
 class TimeRuler(QWidget):

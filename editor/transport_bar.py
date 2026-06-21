@@ -1,8 +1,8 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont, QColor, QPainter
 from PyQt5.QtWidgets import (
-    QWidget, QHBoxLayout, QVBoxLayout, QLabel,
-    QPushButton, QSlider, QFrame, QSizePolicy,
+    QWidget, QHBoxLayout,
+    QPushButton, QSlider,
 )
 
 

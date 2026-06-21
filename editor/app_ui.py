@@ -1,20 +1,19 @@
 import os
-from PyQt5.QtCore import Qt, QSize, QSettings
+from PyQt5.QtCore import Qt, QSettings
 from PyQt5.QtGui import QColor, QKeySequence, QIcon, QFontDatabase, QPixmap, QPainter, QPen, QPainterPath
 from PyQt5.QtWidgets import (
     QMainWindow, QFileDialog, QColorDialog,
     QToolBar, QToolButton, QSpinBox, QLabel, QComboBox,
     QSlider, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QInputDialog, QMenu, QDockWidget, QTabWidget,
-    QButtonGroup, QFrame,
+    QInputDialog, QDockWidget, QTabWidget,
     QDialog,
     QApplication, QMessageBox, QStackedWidget,
 )
 
 from .canvas import CanvasView
-from .panels import ColorPanel, SwatchesPanel, ChannelsPanel, LayerPanel, HistoryPanel, ToolOptionsPanel, NavigatorPanel, GradientPanel, BrushPanel, PathPanel
+from .panels import ColorPanel, SwatchesPanel, ChannelsPanel, LayerPanel, HistoryPanel, NavigatorPanel, GradientPanel, BrushPanel, PathPanel
 from .tools import TOOL_LIST, ShapeTool
-from .file_dialog import get_open_file_name, get_save_file_name
+from .file_dialog import get_open_file_name
 from .settings import SettingsManager
 from .preferences_dialog import PreferencesDialog
 from .resources import apply_dark_theme

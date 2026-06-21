@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon, QPixmap, QPainter
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QSlider, QComboBox, QListWidget, QListWidgetItem,
-    QToolButton, QAbstractItemView, QInputDialog, QMenu, QPushButton,
+    QToolButton, QAbstractItemView, QInputDialog, QMenu,
 )
 from ..layers import BLEND_MODES, AdjustmentLayer, GroupLayer
 from ..i18n import _, get_translator

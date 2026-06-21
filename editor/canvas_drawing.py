@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt, QPointF, QRect, QRectF
-from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QBrush, QLinearGradient
+from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QLinearGradient
 from collections import deque
 import numpy as np
 

@@ -7,7 +7,7 @@ import os
 
 from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import (
-    QPainter, QPen, QBrush, QColor, QImage, QPixmap,
+    QPainter, QBrush, QColor, QImage, QPixmap,
     QRadialGradient, QLinearGradient,
 )
 

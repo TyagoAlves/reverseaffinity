@@ -7,7 +7,7 @@ import json
 
 from PyQt5.QtCore import Qt, QRectF, QPointF, pyqtSignal
 from PyQt5.QtGui import (
-    QPainter, QColor, QPen, QBrush, QLinearGradient, QMouseEvent,
+    QPainter, QColor, QPen, QBrush,
 )
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QLabel,
@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (
     QMenu, QAction, QInputDialog, QSizePolicy,
 )
 
-from .gradient import Gradient, GradientStop, DEFAULT_PRESETS
+from .gradient import Gradient, DEFAULT_PRESETS
 
 PRESETS_PATH = os.path.join(os.path.dirname(__file__), "..", "presets", "gradients.json")
 
