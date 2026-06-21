@@ -1,11 +1,11 @@
 === reverseaffinity — Sprint 3 Status ===
-Data: 2026-06-21 16:00 UTC
+Data: 2026-06-21 17:00 UTC
 Branch: main
-Último commit: T28: Expand plugin system skeleton
+Último commit: Fix Path import in tools.py + add 17 vector path tests
 
-Resumo: 30 agentes, 26/30 tasks done (86.7%), 2 progress, 2 todo
+Resumo: 30 agentes, 27/30 tasks done (90%), 0 progress, 2 todo (blocked)
 
-=== Tasks Done (26) ===
+=== Tasks Done (27) ===
 T01-T04 (merges), T05 (test fixes), T06 (layer masks), T07 (layer groups),
 T08 (UI wiring), T09 (pen tool interativo — handles bezier),
 T10 (brush presets), T11 (preferences+i18n), T12 (history thumbs),
@@ -13,40 +13,21 @@ T13 (snapping), T14 (gradient editor), T15 (C++ SIMD blends 12 modos),
 T18 (palettes), T19 (guides), T20 (zoom), T21 (crop tool),
 T22 (dodge/burn/sponge), T23 (export PSD/TIFF/WebP), T24 (coverage),
 T25 (benchmarks), T26 (dark theme), T27 (i18n FR/DE/IT/JP),
-T28 (plugin sistema — esqueleto + Starry exemplo), T29 (docs)
+T28 (plugin sistema — esqueleto + Starry exemplo), T29 (docs),
+T30 (SRE dashboard telemetria)
 
-=== Tasks In Progress (2) ===
-T30 (dashboard telemetria)
-
-=== Tasks Todo (2) ===
-T16 (C++ history), T17 (GPU filters)
+=== Tasks Blocked (2, C++ — Qt5 dev não disponível) ===
+T16 (port history system C++), T17 (GPU acceleration filters OpenGL)
 
 === Novas implementações (Sprint 3) ===
-1. video_app.py reescrito com funcionalidade real:
-   - SourceMonitor, ProjectPanel, VideoMainWindow, transport
-2. timeline_widget.py: add_track, remove_track, clear, zoom, clips
+1. video_app.py reescrito com funcionalidade real
+2. timeline_widget.py: tracks, clips, zoom
 3. S3 AppImage: reverseaffinity-x86_64.AppImage
-4. main.py: _get_app() pattern, runners dict, --help
-5. T09: Pen tool com handles bezier interativos:
-   - vector_paths persistentes no canvas
-   - seleção/drag de anchors e handles
-   - inserir anchor em segmento (click no meio)
-   - Backspace deleta anchor
-   - overlay visual: pontos azuis, handles laranja, linhas controle
+4. main.py: _get_app() pattern, runners dict
+5. T09: Pen tool com handles bezier interativos (vector_paths, drag, insert, delete)
 6. T15: 12 SIMD blend modes portados C++ SSE/AVX
-7. T27: i18n 7 línguas (550 keys, PT-BR, EN, ES, FR, DE, IT, JP)
-8. T28: Plugin system:
-   - register_tools() → TOOLS_BY_NAME, SHORTCUT_MAP, TOOL_LIST
-   - register_file_formats() → FORMAT_REGISTRY
-   - register_panels() → right_tabs
-   - closeEvent → on_unload
-   - Starry Sky exemplo: tool + panel + filter
-
-=== Dashboard SRE ===
-URL: http://16.59.211.231/
-
-=== Próximos passos ===
-1. T30: dashboard telemetria
-2. T16: port history C++ (blocked: Qt5 dev não disponível)
-3. T17: GPU filters OpenGL (blocked: Qt5 dev não disponível)
+7. T27: i18n 7 línguas (550 keys)
+8. T28: Plugin system (register_tools, register_formats, register_panels, on_unload)
+9. T30: SRE dashboard (scripts/sre_dashboard.py → docs/sre_dashboard.html)
+10. 246 testes passando (vs 229), 17 novos testes de vector path
 
