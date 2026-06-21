@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt, QPointF
-from PyQt5.QtGui import QImage, QColor
+from PyQt5.QtGui import QImage, QColor, QPainter
 
 from editor.canvas import CanvasView
 from editor.layers import Layer, LayerStack, GroupLayer, AdjustmentLayer
@@ -233,6 +233,10 @@ class TestMoveTool:
         assert not c.dragging_layer
 
 
+from editor.path import Path, AnchorPoint
+from PyQt5.QtGui import QImage, QColor, QPainter
+
+
 class TestPenTool:
     def test_pen(self):
         c = CanvasView()
@@ -241,6 +245,156 @@ class TestPenTool:
         assert len(c.pen_path) == 1
         tool.cancel(c)
         assert not c.pen_path
+
+
+class TestVectorPath:
+    def test_basic_path(self):
+        p = Path()
+        p.add_anchor(QPointF(0, 0))
+        p.add_anchor(QPointF(100, 0))
+        assert len(p.anchors) == 2
+        qp = p.to_qpainterpath()
+        assert not qp.isEmpty()
+
+    def test_hit_test_anchor(self):
+        p = Path()
+        p.add_anchor(QPointF(50, 50))
+        p.add_anchor(QPointF(200, 50))
+        hit = p.hit_test(QPointF(50, 50), 5)
+        assert hit == ('anchor', 0)
+
+    def test_hit_test_handle(self):
+        p = Path()
+        p.add_anchor(QPointF(0, 0))
+        p.add_anchor(QPointF(100, 0), QPointF(60, -40), QPointF(140, 40))
+        hit = p.hit_test(QPointF(60, -40), 5)
+        assert hit == ('handle_in', 1), f'got {hit}'
+
+    def test_move_anchor(self):
+        p = Path()
+        p.add_anchor(QPointF(10, 10))
+        p.add_anchor(QPointF(100, 10))
+        p.move_anchor(0, QPointF(20, 30))
+        assert p.anchors[0].position == QPointF(20, 30)
+
+    def test_move_handle(self):
+        p = Path()
+        p.add_anchor(QPointF(0, 0))
+        p.add_anchor(QPointF(100, 0), QPointF(60, -40), QPointF(140, 40))
+        p.move_handle(1, 'handle_in', QPointF(70, -30))
+        assert p.anchors[1].handle_in == QPointF(70, -30)
+
+    def test_insert_anchor_on_segment(self):
+        p = Path()
+        p.add_anchor(QPointF(0, 0))
+        p.add_anchor(QPointF(100, 0))
+        idx = p.add_anchor_at_segment(0.5, 0)
+        assert idx == 1
+        assert len(p.anchors) == 3
+
+    def test_insert_anchor_on_cubic(self):
+        p = Path()
+        p.add_anchor(QPointF(0, 0))
+        p.add_anchor(QPointF(100, 0), QPointF(30, -50), QPointF(70, -50))
+        idx = p.add_anchor_at_segment(0.5, 0)
+        assert idx == 1
+        assert len(p.anchors) == 3
+
+    def test_delete_anchor(self):
+        p = Path()
+        p.add_anchor(QPointF(0, 0))
+        p.add_anchor(QPointF(100, 0))
+        p.add_anchor(QPointF(200, 0))
+        p.delete_anchor(1)
+        assert len(p.anchors) == 2
+        assert p.anchors[1].position == QPointF(200, 0)
+
+    def test_to_svg_line(self):
+        p = Path()
+        p.add_anchor(QPointF(0, 0))
+        p.add_anchor(QPointF(100, 0))
+        svg = p.to_svg()
+        assert "L " in svg
+
+    def test_to_svg_cubic(self):
+        p = Path()
+        p.add_anchor(QPointF(0, 0))
+        p.add_anchor(QPointF(100, 0), QPointF(30, -50), QPointF(70, -50))
+        svg = p.to_svg()
+        assert "C " in svg
+
+    def test_segment_hit_test(self):
+        p = Path()
+        p.add_anchor(QPointF(0, 0))
+        p.add_anchor(QPointF(100, 0))
+        seg = p.segment_hit_test(QPointF(50, 1), 5)
+        assert seg == 1
+
+    def test_copy(self):
+        p = Path()
+        p.add_anchor(QPointF(10, 20))
+        p.add_anchor(QPointF(30, 40))
+        p.closed = True
+        c = p.copy()
+        assert len(c.anchors) == 2
+        assert c.closed
+        assert c.anchors[0].position == QPointF(10, 20)
+
+    def test_rasterize_to(self):
+        from PyQt5.QtGui import QImage, QPainter
+        img = QImage(200, 200, QImage.Format_ARGB32_Premultiplied)
+        img.fill(Qt.transparent)
+        p = Path()
+        p.add_anchor(QPointF(20, 20))
+        p.add_anchor(QPointF(100, 20))
+        p.add_anchor(QPointF(100, 80))
+        p.fill = True
+        p.rasterize_to(img, fill_color=QColor(255, 0, 0))
+        assert not img.isNull()
+
+
+class TestPenToolVectorPaths:
+    def test_finalize_creates_vector_path(self):
+        c = CanvasView()
+        tool = PenTool()
+        tool.press(c, QPointF(50, 50), Qt.NoModifier)
+        tool.move(c, QPointF(50, 50), QPointF(100, 50), Qt.NoModifier)
+        tool.press(c, QPointF(150, 50), Qt.NoModifier)
+        tool.finalize(c)
+        assert len(c.vector_paths) == 1
+
+    def test_vector_path_persists_after_cancel(self):
+        c = CanvasView()
+        tool = PenTool()
+        tool.press(c, QPointF(10, 10), Qt.NoModifier)
+        tool.press(c, QPointF(100, 100), Qt.NoModifier)
+        tool.finalize(c)
+        assert len(c.vector_paths) == 1
+        tool.cancel(c)
+        assert len(c.vector_paths) == 1
+
+    def test_select_path_by_anchor(self):
+        c = CanvasView()
+        tool = PenTool()
+        tool.press(c, QPointF(50, 50), Qt.NoModifier)
+        tool.press(c, QPointF(200, 50), Qt.NoModifier)
+        tool.finalize(c)
+        assert len(c.vector_paths) == 1
+        tool.press(c, QPointF(50, 50), Qt.NoModifier)
+        assert c.selected_path_idx == 0
+
+    def test_key_press_backspace_deletes_anchor(self):
+        c = CanvasView()
+        tool = PenTool()
+        tool.press(c, QPointF(10, 10), Qt.NoModifier)
+        tool.press(c, QPointF(100, 10), Qt.NoModifier)
+        tool.press(c, QPointF(200, 10), Qt.NoModifier)
+        tool.finalize(c)
+        tool.press(c, QPointF(100, 10), Qt.NoModifier)
+        p = c.vector_paths[0]
+        assert len(p.anchors) == 3
+        tool.key_press(c, Qt.Key_Backspace)
+        assert len(p.anchors) == 2
 
 
 class TestFileFormats:
